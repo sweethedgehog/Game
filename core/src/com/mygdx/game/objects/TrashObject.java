@@ -5,6 +5,7 @@ import static com.mygdx.game.GameSettings.TRASH_BIT;
 import static com.mygdx.game.GameSettings.TRASH_MAX_LIVES;
 import static com.mygdx.game.GameSettings.TRASH_VELOCITY;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.GameSettings;
@@ -39,5 +40,6 @@ public class TrashObject extends GameObject {
     public boolean isAlive(){
         return lives > 0;
     }
+
 }
 

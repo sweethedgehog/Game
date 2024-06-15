@@ -15,8 +15,7 @@ public class GameSession {
     private int score;
     int destructedTrashNumber;
     public GameState state;
-    public GameSession(){
-    }
+    public GameSession(){}
     public void startGame(){
         sessionStartTime = TimeUtils.millis();
         score = 0;

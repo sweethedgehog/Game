@@ -3,6 +3,7 @@ package com.mygdx.game.objects;
 import static com.mygdx.game.GameSettings.SCALE;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -18,19 +19,25 @@ public class GameObject {
     public int height;
 
     public Body body;
-    Texture texture;
+    Sprite sprite;
+    int rot;
 
     GameObject(String texturePath, int x, int y, int width, int height, short cBits, World world) {
         this.width = width;
         this.height = height;
         this.cBits = cBits;
 
-        texture = new Texture(texturePath);
+        sprite = new Sprite(new Texture(texturePath));
+        sprite.setOriginCenter();
         body = createBody(x, y, world);
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, getX() - (width / 2f), getY() - (height / 2f), width, height);
+        sprite.setRotation(rot);
+        rot++;
+        sprite.setPosition(getX() - (width / 2f), getY() - (height / 2f));
+        sprite.draw(batch);
+//        batch.draw(texture, getX() - (width / 2f), getY() - (height / 2f), width, height);
     }
 
     public int getX() {
@@ -40,6 +47,9 @@ public class GameObject {
     public int getY() {
         return (int) (body.getPosition().y / SCALE);
     }
+    public int getRotation(){
+        return (int) sprite.getRotation();
+    }
 
     public void setX(int x) {
         body.setTransform(x * SCALE, body.getPosition().y, 0);
@@ -48,7 +58,13 @@ public class GameObject {
     public void setY(int y) {
         body.setTransform(body.getPosition().x, y * SCALE, 0);
     }
-
+    public void setRotation(int angle){
+        sprite.setRotation(angle % 360);
+    }
+    public void rotate(int angle){
+        if (getRotation() + angle >= 360) sprite.setRotation((getRotation() + angle) % 360);
+        else sprite.setRotation(angle);
+    }
     private Body createBody(float x, float y, World world) {
         BodyDef def = new BodyDef(); // def - defenition (определение) это объект, который содержит все данные, необходимые для посторения тела
 
@@ -74,7 +90,7 @@ public class GameObject {
         return body;
     }
     void dispose(){
-        texture.dispose();
+
     }
     public void hit(){}
 }
