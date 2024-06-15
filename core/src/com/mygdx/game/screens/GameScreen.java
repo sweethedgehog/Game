@@ -6,6 +6,7 @@ import static com.mygdx.game.GameResources.BLACKOUT_TOP_IMG_PATH;
 import static com.mygdx.game.GameResources.BULLET_IMG_PATH;
 import static com.mygdx.game.GameResources.PAUSE_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_IMG_PATH;
+import static com.mygdx.game.GameResources.TRASH_SHARP_IMG_PATH;
 import static com.mygdx.game.GameSettings.BULLET_HEIGHT;
 import static com.mygdx.game.GameSettings.BULLET_WIDTH;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
@@ -13,6 +14,8 @@ import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 import static com.mygdx.game.GameSettings.SHIP_HEIGHT;
 import static com.mygdx.game.GameSettings.SHIP_WIDTH;
 import static com.mygdx.game.GameSettings.TRASH_HEIGHT;
+import static com.mygdx.game.GameSettings.TRASH_SHARP_HEIGHT;
+import static com.mygdx.game.GameSettings.TRASH_SHARP_WIDTH;
 import static com.mygdx.game.GameSettings.TRASH_WIDTH;
 import static com.mygdx.game.GameState.PAUSED;
 import static com.mygdx.game.GameState.PLAYING;
@@ -36,18 +39,22 @@ import com.mygdx.game.components.MovingBackGroundView;
 import com.mygdx.game.components.TextView;
 import com.mygdx.game.managers.MemoryManager;
 import com.mygdx.game.objects.BulletObject;
+import com.mygdx.game.objects.EnemyBullet;
+import com.mygdx.game.objects.ExplosiveTrashObject;
 import com.mygdx.game.objects.ShipObject;
 import com.mygdx.game.objects.TrashObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
     MyGdxGame myGdxGame;
     ShipObject shipObject;
     GameSession gameSession;
-    TrashObject trashObject;
     ArrayList<TrashObject> trashArray;
     ArrayList<BulletObject> bulletArray;
+    ArrayList<EnemyBullet> enemyBulletArray;
+    ArrayList<ExplosiveTrashObject> explosiveTrashArray;
     ContactManager contactManager;
     MovingBackGroundView movingBackGroundView;
     ImageView topBlackoutView;
@@ -109,6 +116,8 @@ public class GameScreen extends ScreenAdapter {
 
         trashArray = new ArrayList<>();
         bulletArray = new ArrayList<>();
+        explosiveTrashArray = new ArrayList<>();
+        enemyBulletArray = new ArrayList<>();
 
         shipObject = new ShipObject(
                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
@@ -134,12 +143,25 @@ public class GameScreen extends ScreenAdapter {
             scoreTextView.setText("Score: " + gameSession.getScore());
             liveView.setLeftLives(shipObject.getLiveLeft());
             if (gameSession.shouldSpawnTrash()){
-                TrashObject trashObject = new TrashObject(
-                        TRASH_WIDTH, TRASH_HEIGHT,
-                        TRASH_IMG_PATH,
-                        myGdxGame.world
-                );
-                trashArray.add(trashObject);
+                switch (new Random().nextInt(3)) {
+                    case 0:
+                        ExplosiveTrashObject explosiveTrashObject = new ExplosiveTrashObject(
+                                TRASH_WIDTH, TRASH_HEIGHT,
+                                TRASH_IMG_PATH,
+                                myGdxGame.world
+                        );
+                        explosiveTrashArray.add(explosiveTrashObject);
+                        break;
+                    default:
+                        TrashObject trashObject = new TrashObject(
+                                TRASH_WIDTH, TRASH_HEIGHT,
+                                TRASH_IMG_PATH,
+                                myGdxGame.world
+                        );
+                        trashArray.add(trashObject);
+                        break;
+                }
+
             }
             if (shipObject.needToShoot()){
                 BulletObject bulletObject = new BulletObject(
@@ -154,6 +176,8 @@ public class GameScreen extends ScreenAdapter {
             }
             trashUpdate();
             bulletUpdate();
+            enemyBulletUpdate();
+            explosiveTrashUpdate();
 
             if (!shipObject.isAlive()) {
                 gameSession.endGame();
@@ -170,6 +194,10 @@ public class GameScreen extends ScreenAdapter {
             myGdxGame.world.destroyBody(trashArray.get(i).body);
             trashArray.remove(i--);
         }
+        for (int i = 0; i < explosiveTrashArray.size(); i++) {
+            myGdxGame.world.destroyBody(explosiveTrashArray.get(i).body);
+            explosiveTrashArray.remove(i--);
+        }
 
         if (shipObject != null)
             myGdxGame.world.destroyBody(shipObject.body);
@@ -182,6 +210,7 @@ public class GameScreen extends ScreenAdapter {
         );
 
         bulletArray.clear();
+        enemyBulletArray.clear();
         gameSession.startGame();
     }
 
@@ -219,9 +248,13 @@ public class GameScreen extends ScreenAdapter {
         shipObject.draw(myGdxGame.batch);
         for (TrashObject trash: trashArray)
             trash.draw(myGdxGame.batch);
-        for (BulletObject bullet : bulletArray){
+        for (ExplosiveTrashObject exlpTrash: explosiveTrashArray)
+            exlpTrash.draw(myGdxGame.batch);
+        for (BulletObject bullet : bulletArray)
             bullet.draw(myGdxGame.batch);
-        }
+        for (EnemyBullet enBullet : enemyBulletArray)
+            enBullet.draw(myGdxGame.batch);
+
         topBlackoutView.draw(myGdxGame.batch);
         scoreTextView.draw(myGdxGame.batch);
         liveView.draw(myGdxGame.batch);
@@ -256,11 +289,49 @@ public class GameScreen extends ScreenAdapter {
             }
         }
     }
+    private void explosiveTrashUpdate(){
+        for (int i = 0; i < explosiveTrashArray.size(); i++){
+            boolean hasToBeDestroyed = !explosiveTrashArray.get(i).isAlive() || !explosiveTrashArray.get(i).isInFrame() || shipObject.getY() >= explosiveTrashArray.get(i).getY();
+
+            if (!explosiveTrashArray.get(i).isAlive() || shipObject.getY() >= explosiveTrashArray.get(i).getY()) {
+                gameSession.destructionRegistration();
+                if (myGdxGame.audioManager.isSoundOn)
+                    myGdxGame.audioManager.explosionSound.play(0.2f);
+                EnemyBullet enemyBullet1 = new EnemyBullet(
+                        explosiveTrashArray.get(i).getX() + explosiveTrashArray.get(i).width / 2,
+                        explosiveTrashArray.get(i).getY(),
+                        TRASH_SHARP_WIDTH, TRASH_SHARP_HEIGHT,
+                        TRASH_SHARP_IMG_PATH, myGdxGame.world, 0, true
+                        );
+                enemyBulletArray.add(enemyBullet1);
+                EnemyBullet enemyBullet2 = new EnemyBullet(
+                        explosiveTrashArray.get(i).getX() - explosiveTrashArray.get(i).width / 2,
+                        explosiveTrashArray.get(i).getY(),
+                        TRASH_SHARP_WIDTH, TRASH_SHARP_HEIGHT,
+                        TRASH_SHARP_IMG_PATH, myGdxGame.world, 180, true
+                        );
+                enemyBulletArray.add(enemyBullet2);
+            }
+
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(explosiveTrashArray.get(i).body);
+                explosiveTrashArray.remove(i--);
+            }
+        }
+    }
     private void bulletUpdate(){
         for (int i = 0; i < bulletArray.size(); i++){
             if (bulletArray.get(i).hasToBeDestroyed()){
                 myGdxGame.world.destroyBody(bulletArray.get(i).body);
                 bulletArray.remove(i--);
+            }
+        }
+    }
+    private void enemyBulletUpdate(){
+        for (int i = 0; i < enemyBulletArray.size(); i++){
+            if (enemyBulletArray.get(i).hasToBeDestroyed()){
+                    myGdxGame.world.destroyBody(enemyBulletArray.get(i).body);
+                enemyBulletArray.remove(i--);
             }
         }
     }

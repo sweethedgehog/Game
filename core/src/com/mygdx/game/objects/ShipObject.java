@@ -46,7 +46,6 @@ public class ShipObject extends GameObject{
     @Override
     public void draw(SpriteBatch batch){
         putInFrame();
-        System.out.println(getRotation());
         super.draw(batch);
     }
     @Override

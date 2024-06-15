@@ -20,7 +20,6 @@ public class GameObject {
 
     public Body body;
     Sprite sprite;
-    int rot;
 
     GameObject(String texturePath, int x, int y, int width, int height, short cBits, World world) {
         this.width = width;
@@ -33,8 +32,6 @@ public class GameObject {
     }
 
     public void draw(SpriteBatch batch) {
-        sprite.setRotation(rot);
-        rot++;
         sprite.setPosition(getX() - (width / 2f), getY() - (height / 2f));
         sprite.draw(batch);
 //        batch.draw(texture, getX() - (width / 2f), getY() - (height / 2f), width, height);
@@ -62,8 +59,8 @@ public class GameObject {
         sprite.setRotation(angle % 360);
     }
     public void rotate(int angle){
-        if (getRotation() + angle >= 360) sprite.setRotation((getRotation() + angle) % 360);
-        else sprite.setRotation(angle);
+        if (getRotation() + angle >= 360 || getRotation() + angle <= 0) sprite.setRotation((getRotation() + angle) % 360);
+        else sprite.rotate(angle);
     }
     private Body createBody(float x, float y, World world) {
         BodyDef def = new BodyDef(); // def - defenition (определение) это объект, который содержит все данные, необходимые для посторения тела
