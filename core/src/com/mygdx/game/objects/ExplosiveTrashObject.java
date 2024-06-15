@@ -1,6 +1,8 @@
 package com.mygdx.game.objects;
 
 import static com.mygdx.game.GameSettings.EXPLOSIVE_TRASH_MAX_LIVES;
+import static com.mygdx.game.GameSettings.EXPLOSIVE_TRASH_ROTATE_VELOCITY;
+import static com.mygdx.game.GameSettings.PADDING_HORIZONTAL;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 import static com.mygdx.game.GameSettings.TRASH_BIT;
@@ -15,13 +17,11 @@ import java.util.Random;
 
 public class ExplosiveTrashObject extends GameObject{
     int lives;
-    private static final int paddingHorizontal = 30;
-    private static final int rotateVelocity = 15;
     private int rotateDirection;
     public ExplosiveTrashObject(int width, int height, String texturePath, World world){
         super(
                 texturePath,
-                width / 2 + paddingHorizontal + (new Random()).nextInt((SCREEN_WIDTH - 2 * paddingHorizontal - width)),
+                width / 2 + PADDING_HORIZONTAL + (new Random()).nextInt((SCREEN_WIDTH - 2 * PADDING_HORIZONTAL - width)),
                 SCREEN_HEIGHT + height / 2,
                 width, height,
                 TRASH_BIT,
@@ -41,10 +41,8 @@ public class ExplosiveTrashObject extends GameObject{
     public void hit(){
         lives--;
     }
-    @Override
-    public void draw(SpriteBatch batch){
-        rotate(rotateVelocity * rotateDirection);
-        super.draw(batch);
+    public void rotateConst(){
+        super.rotate(EXPLOSIVE_TRASH_ROTATE_VELOCITY * rotateDirection);
     }
     public boolean isAlive(){
         return lives > 0;

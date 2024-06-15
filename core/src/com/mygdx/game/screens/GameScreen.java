@@ -5,10 +5,14 @@ import static com.mygdx.game.GameResources.BLACKOUT_FULL_IMG_PATH;
 import static com.mygdx.game.GameResources.BLACKOUT_TOP_IMG_PATH;
 import static com.mygdx.game.GameResources.BULLET_IMG_PATH;
 import static com.mygdx.game.GameResources.PAUSE_IMG_PATH;
+import static com.mygdx.game.GameResources.PIRATES_IMG_PATH;
+import static com.mygdx.game.GameResources.SHIP_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_SHARP_IMG_PATH;
 import static com.mygdx.game.GameSettings.BULLET_HEIGHT;
 import static com.mygdx.game.GameSettings.BULLET_WIDTH;
+import static com.mygdx.game.GameSettings.PIRATES_HEIGHT;
+import static com.mygdx.game.GameSettings.PIRATES_WIDTH;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 import static com.mygdx.game.GameSettings.SHIP_HEIGHT;
@@ -23,6 +27,7 @@ import static com.mygdx.game.GameState.PLAYING;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.components.RecordsListView;
@@ -41,6 +46,7 @@ import com.mygdx.game.managers.MemoryManager;
 import com.mygdx.game.objects.BulletObject;
 import com.mygdx.game.objects.EnemyBullet;
 import com.mygdx.game.objects.ExplosiveTrashObject;
+import com.mygdx.game.objects.PiratesObject;
 import com.mygdx.game.objects.ShipObject;
 import com.mygdx.game.objects.TrashObject;
 
@@ -55,6 +61,7 @@ public class GameScreen extends ScreenAdapter {
     ArrayList<BulletObject> bulletArray;
     ArrayList<EnemyBullet> enemyBulletArray;
     ArrayList<ExplosiveTrashObject> explosiveTrashArray;
+    ArrayList<PiratesObject> piratesArray;
     ContactManager contactManager;
     MovingBackGroundView movingBackGroundView;
     ImageView topBlackoutView;
@@ -118,6 +125,7 @@ public class GameScreen extends ScreenAdapter {
         bulletArray = new ArrayList<>();
         explosiveTrashArray = new ArrayList<>();
         enemyBulletArray = new ArrayList<>();
+        piratesArray = new ArrayList<>();
 
         shipObject = new ShipObject(
                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
@@ -143,7 +151,7 @@ public class GameScreen extends ScreenAdapter {
             scoreTextView.setText("Score: " + gameSession.getScore());
             liveView.setLeftLives(shipObject.getLiveLeft());
             if (gameSession.shouldSpawnTrash()){
-                switch (new Random().nextInt(3)) {
+                switch (new Random().nextInt(4)) {
                     case 0:
                         ExplosiveTrashObject explosiveTrashObject = new ExplosiveTrashObject(
                                 TRASH_WIDTH, TRASH_HEIGHT,
@@ -151,6 +159,14 @@ public class GameScreen extends ScreenAdapter {
                                 myGdxGame.world
                         );
                         explosiveTrashArray.add(explosiveTrashObject);
+                        break;
+                    case 1:
+                        PiratesObject piratesObject = new PiratesObject(
+                                PIRATES_WIDTH, PIRATES_HEIGHT,
+                                PIRATES_IMG_PATH,
+                                myGdxGame.world
+                        );
+                        piratesArray.add(piratesObject);
                         break;
                     default:
                         TrashObject trashObject = new TrashObject(
@@ -178,6 +194,7 @@ public class GameScreen extends ScreenAdapter {
             bulletUpdate();
             enemyBulletUpdate();
             explosiveTrashUpdate();
+            piratesUpdate();
 
             if (!shipObject.isAlive()) {
                 gameSession.endGame();
@@ -197,6 +214,10 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < explosiveTrashArray.size(); i++) {
             myGdxGame.world.destroyBody(explosiveTrashArray.get(i).body);
             explosiveTrashArray.remove(i--);
+        }
+        for (int i = 0; i < piratesArray.size(); i++) {
+            myGdxGame.world.destroyBody(piratesArray.get(i).body);
+            piratesArray.remove(i--);
         }
 
         if (shipObject != null)
@@ -250,6 +271,8 @@ public class GameScreen extends ScreenAdapter {
             trash.draw(myGdxGame.batch);
         for (ExplosiveTrashObject exlpTrash: explosiveTrashArray)
             exlpTrash.draw(myGdxGame.batch);
+        for (PiratesObject pirate: piratesArray)
+            pirate.draw(myGdxGame.batch);
         for (BulletObject bullet : bulletArray)
             bullet.draw(myGdxGame.batch);
         for (EnemyBullet enBullet : enemyBulletArray)
@@ -289,9 +312,28 @@ public class GameScreen extends ScreenAdapter {
             }
         }
     }
+    private void piratesUpdate(){
+        for (int i = 0; i < piratesArray.size(); i++){
+            boolean hasToBeDestroyed = !piratesArray.get(i).isAlive() || !piratesArray.get(i).isInFrame();
+
+            if (!piratesArray.get(i).isAlive()) {
+                gameSession.destructionRegistration();
+                if (myGdxGame.audioManager.isSoundOn)
+                    myGdxGame.audioManager.explosionSound.play(0.2f);
+            }
+            if (piratesArray.get(i).needToRotate())
+                piratesArray.get(i).rotateToPos(new Vector2(shipObject.getX(), shipObject.getY()));
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(piratesArray.get(i).body);
+                piratesArray.remove(i--);
+            }
+        }
+    }
     private void explosiveTrashUpdate(){
         for (int i = 0; i < explosiveTrashArray.size(); i++){
+
             boolean hasToBeDestroyed = !explosiveTrashArray.get(i).isAlive() || !explosiveTrashArray.get(i).isInFrame() || shipObject.getY() >= explosiveTrashArray.get(i).getY();
+            explosiveTrashArray.get(i).rotateConst();
 
             if (!explosiveTrashArray.get(i).isAlive() || shipObject.getY() >= explosiveTrashArray.get(i).getY()) {
                 gameSession.destructionRegistration();
@@ -329,6 +371,7 @@ public class GameScreen extends ScreenAdapter {
     }
     private void enemyBulletUpdate(){
         for (int i = 0; i < enemyBulletArray.size(); i++){
+            enemyBulletArray.get(i).rotateConst();
             if (enemyBulletArray.get(i).hasToBeDestroyed()){
                     myGdxGame.world.destroyBody(enemyBulletArray.get(i).body);
                 enemyBulletArray.remove(i--);

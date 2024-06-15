@@ -2,6 +2,7 @@ package com.mygdx.game.managers;
 
 import static com.mygdx.game.GameSettings.BULLET_BIT;
 import static com.mygdx.game.GameSettings.ENEMY_BULLET_BIT;
+import static com.mygdx.game.GameSettings.PIRATES_BIT;
 import static com.mygdx.game.GameSettings.SHIP_BIT;
 import static com.mygdx.game.GameSettings.TRASH_BIT;
 
@@ -30,10 +31,18 @@ public class ContactManager {
 
                 if ((cDef1 == SHIP_BIT && cDef2 == TRASH_BIT) ||
                         (cDef2 == SHIP_BIT && cDef1 == TRASH_BIT) ||
+                        (cDef1 == PIRATES_BIT && cDef2 == TRASH_BIT) ||
+                        (cDef2 == PIRATES_BIT && cDef1 == TRASH_BIT) ||
                         (cDef1 == BULLET_BIT && cDef2 == TRASH_BIT) ||
                         (cDef2 == BULLET_BIT && cDef1 == TRASH_BIT) ||
                         (cDef1 == SHIP_BIT && cDef2 == ENEMY_BULLET_BIT) ||
-                        (cDef2 == SHIP_BIT && cDef1 == ENEMY_BULLET_BIT)){
+                        (cDef2 == SHIP_BIT && cDef1 == ENEMY_BULLET_BIT) ||
+                        (cDef1 == PIRATES_BIT && cDef2 == ENEMY_BULLET_BIT) ||
+                        (cDef2 == PIRATES_BIT && cDef1 == ENEMY_BULLET_BIT) ||
+                        (cDef1 == PIRATES_BIT && cDef2 == SHIP_BIT) ||
+                        (cDef2 == PIRATES_BIT && cDef1 == SHIP_BIT) ||
+                        (cDef1 == BULLET_BIT && cDef2 == PIRATES_BIT) ||
+                        (cDef2 == BULLET_BIT && cDef1 == PIRATES_BIT)){
                     ((GameObject) fixA.getUserData()).hit();
                     ((GameObject) fixB.getUserData()).hit();
                 }

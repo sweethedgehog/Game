@@ -3,6 +3,7 @@ package com.mygdx.game.objects;
 import static com.mygdx.game.GameSettings.BULLET_BIT;
 import static com.mygdx.game.GameSettings.BULLET_VELOCITY;
 import static com.mygdx.game.GameSettings.ENEMY_BULLET_BIT;
+import static com.mygdx.game.GameSettings.ENEMY_BULLET_ROTATE_VELOCITY;
 import static com.mygdx.game.GameSettings.ENEMY_BULLET_VELOCITY;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
@@ -15,7 +16,6 @@ public class EnemyBullet extends GameObject{
     public boolean wasHit;
     private boolean isRotating;
     private int rotate;
-    private static final int rotateVelocity = 15;
     public EnemyBullet(int x, int y, int width, int height, String texturePath, World world, int rotate, boolean isRotating){
         super(texturePath, x, y, width, height, ENEMY_BULLET_BIT, world);
         body.setLinearVelocity(new Vector2(
@@ -40,12 +40,10 @@ public class EnemyBullet extends GameObject{
     public void hit(){
         wasHit = true;
     }
-    @Override
-    public void draw(SpriteBatch batch){
+    public void rotateConst(){
         if (isRotating && rotate != 0)
-            rotate(rotateVelocity * rotate / Math.abs(rotate));
+            rotate(ENEMY_BULLET_ROTATE_VELOCITY * rotate / Math.abs(rotate));
         else if (rotate == 0)
-            rotate(rotateVelocity);
-        super.draw(batch);
+            rotate(ENEMY_BULLET_ROTATE_VELOCITY);
     }
 }

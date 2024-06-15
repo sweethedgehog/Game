@@ -1,5 +1,6 @@
 package com.mygdx.game.objects;
 
+import static com.mygdx.game.GameSettings.PADDING_HORIZONTAL;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 import static com.mygdx.game.GameSettings.TRASH_BIT;
@@ -15,12 +16,10 @@ import java.util.Random;
 
 public class TrashObject extends GameObject {
     int lives;
-    private static final int paddingHorizontal = 30;
-
     public TrashObject(int width, int height, String texturePath, World world) {
         super(
                 texturePath,
-                width / 2 + paddingHorizontal + (new Random()).nextInt((SCREEN_WIDTH - 2 * paddingHorizontal - width)),
+                width / 2 + PADDING_HORIZONTAL + (new Random()).nextInt((SCREEN_WIDTH - 2 * PADDING_HORIZONTAL - width)),
                 SCREEN_HEIGHT + height / 2,
                 width, height,
                 TRASH_BIT,
