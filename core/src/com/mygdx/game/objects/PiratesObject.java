@@ -33,7 +33,7 @@ public class PiratesObject extends GameObject{
         wasRotated = false;
     }
     @Override
-    public void hit(){
+    public void hit(int typeBonus){
         lives--;
     }
 

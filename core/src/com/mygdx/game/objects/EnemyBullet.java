@@ -37,7 +37,7 @@ public class EnemyBullet extends GameObject{
                 wasHit;
     }
     @Override
-    public void hit(){
+    public void hit(int typeBonus){
         wasHit = true;
     }
     public void rotateConst(){

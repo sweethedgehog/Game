@@ -1,12 +1,16 @@
 package com.mygdx.game.objects;
 
 import static com.mygdx.game.GameResources.BULLET_IMG_PATH;
+import static com.mygdx.game.GameResources.SHIELD_IMG_PATH;
 import static com.mygdx.game.GameSettings.BARRIER_BULLET_VELOCITY;
 import static com.mygdx.game.GameSettings.BULLET_HEIGHT;
 import static com.mygdx.game.GameSettings.BULLET_VELOCITY;
 import static com.mygdx.game.GameSettings.BULLET_WIDTH;
+import static com.mygdx.game.GameSettings.HEAL_BONUS;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
+import static com.mygdx.game.GameSettings.SHIELD_BONUS;
+import static com.mygdx.game.GameSettings.SHIELD_DURATION;
 import static com.mygdx.game.GameSettings.SHIP_BIT;
 import static com.mygdx.game.GameSettings.SHIP_FORCE_RATIO;
 import static com.mygdx.game.GameSettings.SHIP_LIVES;
@@ -14,8 +18,10 @@ import static com.mygdx.game.GameSettings.SHOOTING_COOL_DOWN;
 import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_HEIGHT;
 import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_VELOCITY;
 import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_WIDTH;
+import static com.mygdx.game.GameSettings.ULTRA_KILL_BONUS;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -26,19 +32,20 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.ArrayList;
 
 public class ShipObject extends GameObject{
+    Texture shieldTexture;
     long lastShotTime;
     int lives;
+    long lastShieldOn;
     private int weapon;
     public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world) {
         super(texturePath, x, y, width, height, SHIP_BIT, world);
         body.setLinearDamping(10);
         lives = SHIP_LIVES;
+        shieldTexture = new Texture(SHIELD_IMG_PATH);
         this.weapon = weapon;
     }
     public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world, boolean isStatic) {
         super(texturePath, x, y, width, height, SHIP_BIT, world);
-        body.setLinearDamping(10);
-        lives = SHIP_LIVES;
         this.weapon = weapon;
         if (isStatic)
             body.setType(BodyDef.BodyType.StaticBody);
@@ -67,10 +74,27 @@ public class ShipObject extends GameObject{
     public void draw(SpriteBatch batch){
         putInFrame();
         super.draw(batch);
+        if (shieldTexture != null && TimeUtils.millis() - lastShieldOn < SHIELD_DURATION)
+            batch.draw(shieldTexture, getX() - (width * 0.75f), getY() - (height * 0.75f), width * 1.5f, height * 1.5f);
     }
     @Override
-    public void hit(){
-        lives--;
+    public void hit(int typeBonus){
+        switch (typeBonus){
+            default:
+                if (!(TimeUtils.millis() - lastShieldOn < SHIELD_DURATION))
+                    lives--;
+                break;
+            case HEAL_BONUS:
+                lives++;
+                if (lives > SHIP_LIVES)
+                    lives = SHIP_LIVES;
+                break;
+            case SHIELD_BONUS:
+                lastShieldOn = TimeUtils.millis();
+                break;
+            case ULTRA_KILL_BONUS:
+                break;
+        }
     }
     public boolean isAlive(){
         return lives > 0;

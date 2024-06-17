@@ -3,33 +3,30 @@ package com.mygdx.game.objects;
 import static com.mygdx.game.GameSettings.PADDING_HORIZONTAL;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
-import static com.mygdx.game.GameSettings.TRASH_BIT;
-import static com.mygdx.game.GameSettings.TRASH_MAX_LIVES;
+import static com.mygdx.game.GameSettings.SHIELD_BONUS_BIT;
 import static com.mygdx.game.GameSettings.TRASH_VELOCITY;
+import static com.mygdx.game.GameSettings.ULTRA_KILL_BONUS_BIT;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
-import com.mygdx.game.GameSettings;
 
 import java.util.Random;
 
-public class TrashObject extends GameObject {
-    int lives;
-    public TrashObject(int width, int height, String texturePath, World world) {
+public class UltraKillBonusObject extends GameObject{
+    public boolean wasUsed;
+    public UltraKillBonusObject(int width, int height, String texturePath, World world){
         super(
                 texturePath,
                 width / 2 + PADDING_HORIZONTAL + (new Random()).nextInt((SCREEN_WIDTH - 2 * PADDING_HORIZONTAL - width)),
                 SCREEN_HEIGHT + height / 2,
                 width, height,
-                TRASH_BIT,
+                ULTRA_KILL_BONUS_BIT,
                 world
-            );
-
-        lives = TRASH_MAX_LIVES;
-        body.setLinearVelocity(new Vector2(0, -TRASH_VELOCITY));
+        );
+        wasUsed = false;
+        body.setType(BodyDef.BodyType.KinematicBody);
+        body.setLinearVelocity(0, -TRASH_VELOCITY);
     }
-
     public boolean isInFrame() {
         return !((getY() - height / 2 > SCREEN_HEIGHT) ||
                 (getY() + height / 2 < 0) ||
@@ -38,11 +35,6 @@ public class TrashObject extends GameObject {
     }
     @Override
     public void hit(int typeBonus){
-        lives--;
+        wasUsed = true;
     }
-    public boolean isAlive(){
-        return lives > 0;
-    }
-
 }
-

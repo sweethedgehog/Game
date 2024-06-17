@@ -9,6 +9,8 @@ public class GameResources {
     public static final String BUTTON_LONG_BG_IMG_PATH = "textures/button_background_long.png";
     public static final String PAUSE_IMG_PATH = "textures/pause_icon.png";
     public static final String LIVE_IMG_PATH = "textures/life.png";
+    public static final String SHIELD_IMG_PATH = "textures/shield.png";
+    public static final String SKULL_IMG_PATH = "textures/skull.png";
     public static final String BULLET_IMG_PATH = "textures/bullet.png";
     public static final String SHIP_IMG_PATH = "textures/ship.png";
     public static final String PIRATES_IMG_PATH = "textures/pirates_ship.png";

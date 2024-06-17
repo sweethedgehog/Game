@@ -21,6 +21,7 @@ public class GameSettings {
     public static int ENEMY_BULLET_VELOCITY = 50; // in [m/s] - meter per second
     public static int ENEMY_BULLET_ROTATE_VELOCITY = 15;
     public static int[] SHOOTING_COOL_DOWN = {1000, 500, 5000}; // in [ms] - milliseconds
+    public static int SHIELD_DURATION = 5000; // in [ms] - milliseconds
     public static int PADDING_HORIZONTAL = 30;
     public static int PIRATES_POS_Y_TO_ROTATE = SCREEN_HEIGHT - 150;
     public static int EXPLOSIVE_TRASH_ROTATE_VELOCITY = 15;
@@ -30,6 +31,14 @@ public class GameSettings {
     public static final short BULLET_BIT = 8;
     public static final short ENEMY_BULLET_BIT = 16;
     public static final short PIRATES_BIT = 32;
+    public static final short HEAL_BONUS_BIT = 64;
+    public static final short SHIELD_BONUS_BIT = 128;
+    public static final short ULTRA_KILL_BONUS_BIT = 256;
+
+    // Bonus tags
+    public static final int HEAL_BONUS = 1;
+    public static final int SHIELD_BONUS = 2;
+    public static final int ULTRA_KILL_BONUS = 3;
 
     // Object sizes
 

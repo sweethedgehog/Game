@@ -90,5 +90,5 @@ public class GameObject {
     void dispose(){
 
     }
-    public void hit(){}
+    public void hit(int typeBonus){}
 }

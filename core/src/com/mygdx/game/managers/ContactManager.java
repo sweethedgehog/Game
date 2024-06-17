@@ -2,9 +2,15 @@ package com.mygdx.game.managers;
 
 import static com.mygdx.game.GameSettings.BULLET_BIT;
 import static com.mygdx.game.GameSettings.ENEMY_BULLET_BIT;
+import static com.mygdx.game.GameSettings.HEAL_BONUS;
+import static com.mygdx.game.GameSettings.HEAL_BONUS_BIT;
 import static com.mygdx.game.GameSettings.PIRATES_BIT;
+import static com.mygdx.game.GameSettings.SHIELD_BONUS;
+import static com.mygdx.game.GameSettings.SHIELD_BONUS_BIT;
 import static com.mygdx.game.GameSettings.SHIP_BIT;
 import static com.mygdx.game.GameSettings.TRASH_BIT;
+import static com.mygdx.game.GameSettings.ULTRA_KILL_BONUS;
+import static com.mygdx.game.GameSettings.ULTRA_KILL_BONUS_BIT;
 
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -13,6 +19,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.objects.GameObject;
+import com.mygdx.game.objects.UltraKillBonusObject;
 
 public class ContactManager {
     World world;
@@ -43,8 +50,20 @@ public class ContactManager {
                         (cDef2 == PIRATES_BIT && cDef1 == SHIP_BIT) ||
                         (cDef1 == BULLET_BIT && cDef2 == PIRATES_BIT) ||
                         (cDef2 == BULLET_BIT && cDef1 == PIRATES_BIT)){
-                    ((GameObject) fixA.getUserData()).hit();
-                    ((GameObject) fixB.getUserData()).hit();
+                    ((GameObject) fixA.getUserData()).hit(0);
+                    ((GameObject) fixB.getUserData()).hit(0);
+                } else if ((cDef1 == SHIP_BIT && cDef2 == HEAL_BONUS_BIT) ||
+                        (cDef2 == SHIP_BIT && cDef1 == HEAL_BONUS_BIT)) {
+                    ((GameObject) fixA.getUserData()).hit(HEAL_BONUS);
+                    ((GameObject) fixB.getUserData()).hit(HEAL_BONUS);
+                }else if ((cDef1 == SHIP_BIT && cDef2 == SHIELD_BONUS_BIT) ||
+                        (cDef2 == SHIP_BIT && cDef1 == SHIELD_BONUS_BIT)) {
+                    ((GameObject) fixA.getUserData()).hit(SHIELD_BONUS);
+                    ((GameObject) fixB.getUserData()).hit(SHIELD_BONUS);
+                }else if ((cDef1 == SHIP_BIT && cDef2 == ULTRA_KILL_BONUS_BIT) ||
+                        (cDef2 == SHIP_BIT && cDef1 == ULTRA_KILL_BONUS_BIT)) {
+                    ((GameObject) fixA.getUserData()).hit(ULTRA_KILL_BONUS);
+                    ((GameObject) fixB.getUserData()).hit(ULTRA_KILL_BONUS);
                 }
             }
 

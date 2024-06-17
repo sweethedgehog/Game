@@ -3,9 +3,12 @@ package com.mygdx.game.screens;
 import static com.mygdx.game.GameResources.BACKGROUND_IMG_PATH;
 import static com.mygdx.game.GameResources.BLACKOUT_FULL_IMG_PATH;
 import static com.mygdx.game.GameResources.BLACKOUT_TOP_IMG_PATH;
+import static com.mygdx.game.GameResources.LIVE_IMG_PATH;
 import static com.mygdx.game.GameResources.PAUSE_IMG_PATH;
 import static com.mygdx.game.GameResources.PIRATES_IMG_PATH;
+import static com.mygdx.game.GameResources.SHIELD_IMG_PATH;
 import static com.mygdx.game.GameResources.SHIP_IMG_PATH;
+import static com.mygdx.game.GameResources.SKULL_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_SHARP_IMG_PATH;
 import static com.mygdx.game.GameSettings.PIRATES_HEIGHT;
@@ -43,9 +46,12 @@ import com.mygdx.game.managers.MemoryManager;
 import com.mygdx.game.objects.BulletObject;
 import com.mygdx.game.objects.EnemyBullet;
 import com.mygdx.game.objects.ExplosiveTrashObject;
+import com.mygdx.game.objects.HealBonusObject;
 import com.mygdx.game.objects.PiratesObject;
+import com.mygdx.game.objects.ShieldBonusObject;
 import com.mygdx.game.objects.ShipObject;
 import com.mygdx.game.objects.TrashObject;
+import com.mygdx.game.objects.UltraKillBonusObject;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -59,6 +65,9 @@ public class GameScreen extends ScreenAdapter {
     ArrayList<EnemyBullet> enemyBulletArray;
     ArrayList<ExplosiveTrashObject> explosiveTrashArray;
     ArrayList<PiratesObject> piratesArray;
+    ArrayList<HealBonusObject> healBonusArray;
+    ArrayList<ShieldBonusObject> shieldBonusArray;
+    ArrayList<UltraKillBonusObject> ultraKillBonusArray;
     ContactManager contactManager;
     MovingBackGroundView movingBackGroundView;
     ImageView topBlackoutView;
@@ -123,6 +132,9 @@ public class GameScreen extends ScreenAdapter {
         explosiveTrashArray = new ArrayList<>();
         enemyBulletArray = new ArrayList<>();
         piratesArray = new ArrayList<>();
+        healBonusArray = new ArrayList<>();
+        shieldBonusArray = new ArrayList<>();
+        ultraKillBonusArray = new ArrayList<>();
 
         shipObject = new ShipObject(
                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
@@ -149,51 +161,51 @@ public class GameScreen extends ScreenAdapter {
             scoreTextView.setText("Score: " + gameSession.getScore());
             liveView.setLeftLives(shipObject.getLiveLeft());
             if (gameSession.shouldSpawnTrash()){
-                switch (new Random().nextInt(4)) {
-                    case 0:
-                        ExplosiveTrashObject explosiveTrashObject = new ExplosiveTrashObject(
+                int enemyType = new Random().nextInt(19);
+                if (enemyType < 4){
+                    ExplosiveTrashObject explosiveTrashObject = new ExplosiveTrashObject(
                                 TRASH_WIDTH, TRASH_HEIGHT,
                                 TRASH_IMG_PATH,
                                 myGdxGame.world
                         );
                         explosiveTrashArray.add(explosiveTrashObject);
-                        break;
-                    case 1:
-                        PiratesObject piratesObject = new PiratesObject(
+                } else if (enemyType < 8) {
+                    PiratesObject piratesObject = new PiratesObject(
                                 PIRATES_WIDTH, PIRATES_HEIGHT,
                                 PIRATES_IMG_PATH,
                                 myGdxGame.world
                         );
                         piratesArray.add(piratesObject);
-                        break;
-                    default:
-                        TrashObject trashObject = new TrashObject(
+                } else if (enemyType < 16) {
+                    TrashObject trashObject = new TrashObject(
                                 TRASH_WIDTH, TRASH_HEIGHT,
                                 TRASH_IMG_PATH,
                                 myGdxGame.world
                         );
                         trashArray.add(trashObject);
-                        break;
+                } else if (enemyType < 17) {
+                    HealBonusObject healBonusObject = new HealBonusObject(35, 30, LIVE_IMG_PATH, myGdxGame.world);
+                    healBonusArray.add(healBonusObject);
+                }else if (enemyType < 18) {
+                    ShieldBonusObject shieldBonusObject = new ShieldBonusObject(35, 30, SHIELD_IMG_PATH, myGdxGame.world);
+                    shieldBonusArray.add(shieldBonusObject);
+                }else{
+                    UltraKillBonusObject ultraKillBonusObject = new UltraKillBonusObject(35, 30, SKULL_IMG_PATH, myGdxGame.world);
+                    ultraKillBonusArray.add(ultraKillBonusObject);
                 }
-
             }
             if (shipObject.needToShoot()){
                 bulletArray = shipObject.shoot(bulletArray, myGdxGame.world);
-//                BulletObject bulletObject = new BulletObject(
-//                        shipObject.getX(),
-//                        shipObject.getY() + shipObject.height / 2,
-//                        BULLET_WIDTH, BULLET_HEIGHT,
-//                        BULLET_IMG_PATH,
-//                        myGdxGame.world
-//                );
                 if (myGdxGame.audioManager.isSoundOn) myGdxGame.audioManager.shootSound.play();
-//                bulletArray.add(bulletObject);
             }
             trashUpdate();
             bulletUpdate();
             enemyBulletUpdate();
             explosiveTrashUpdate();
             piratesUpdate();
+            healBonusUpdate();
+            shieldBonusUpdate();
+            ultraKillUpdate();
 
             if (!shipObject.isAlive()) {
                 gameSession.endGame();
@@ -216,6 +228,18 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < piratesArray.size(); i++) {
             myGdxGame.world.destroyBody(piratesArray.get(i).body);
             piratesArray.remove(i--);
+        }
+        for (int i = 0; i < healBonusArray.size(); i++) {
+            myGdxGame.world.destroyBody(healBonusArray.get(i).body);
+            healBonusArray.remove(i--);
+        }
+        for (int i = 0; i < shieldBonusArray.size(); i++) {
+            myGdxGame.world.destroyBody(shieldBonusArray.get(i).body);
+            shieldBonusArray.remove(i--);
+        }
+        for (int i = 0; i < ultraKillBonusArray.size(); i++) {
+            myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
+            ultraKillBonusArray.remove(i--);
         }
 
         if (shipObject != null)
@@ -268,6 +292,12 @@ public class GameScreen extends ScreenAdapter {
         shipObject.draw(myGdxGame.batch);
         for (TrashObject trash: trashArray)
             trash.draw(myGdxGame.batch);
+        for (HealBonusObject heal: healBonusArray)
+            heal.draw(myGdxGame.batch);
+        for (ShieldBonusObject shield: shieldBonusArray)
+            shield.draw(myGdxGame.batch);
+        for (UltraKillBonusObject ultraKill: ultraKillBonusArray)
+            ultraKill.draw(myGdxGame.batch);
         for (ExplosiveTrashObject exlpTrash: explosiveTrashArray)
             exlpTrash.draw(myGdxGame.batch);
         for (PiratesObject pirate: piratesArray)
@@ -308,6 +338,51 @@ public class GameScreen extends ScreenAdapter {
             if (hasToBeDestroyed) {
                 myGdxGame.world.destroyBody(trashArray.get(i).body);
                 trashArray.remove(i--);
+            }
+        }
+    }
+    private void healBonusUpdate(){
+        for (int i = 0; i < healBonusArray.size(); i++){
+            boolean hasToBeDestroyed = healBonusArray.get(i).wasUsed || !healBonusArray.get(i).isInFrame();
+
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(healBonusArray.get(i).body);
+                healBonusArray.remove(i--);
+            }
+        }
+    }
+    private void shieldBonusUpdate(){
+        for (int i = 0; i < shieldBonusArray.size(); i++){
+            boolean hasToBeDestroyed = shieldBonusArray.get(i).wasUsed || !shieldBonusArray.get(i).isInFrame();
+
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(shieldBonusArray.get(i).body);
+                shieldBonusArray.remove(i--);
+            }
+        }
+    }
+    private void ultraKillUpdate(){
+        for (int i = 0; i < ultraKillBonusArray.size(); i++){
+            boolean hasToBeDestroyed = ultraKillBonusArray.get(i).wasUsed || !ultraKillBonusArray.get(i).isInFrame();
+
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
+
+                for (int j = 0; j < trashArray.size(); j++) {
+                    myGdxGame.world.destroyBody(trashArray.get(j).body);
+                    trashArray.remove(j--);
+                }
+                for (int j = 0; j < explosiveTrashArray.size(); j++) {
+                    myGdxGame.world.destroyBody(explosiveTrashArray.get(j).body);
+                    explosiveTrashArray.remove(j--);
+                }
+                for (int j = 0; j < piratesArray.size(); j++) {
+                    myGdxGame.world.destroyBody(piratesArray.get(j).body);
+                    piratesArray.remove(j--);
+                }
+                enemyBulletArray.clear();
+
+                ultraKillBonusArray.remove(i--);
             }
         }
     }

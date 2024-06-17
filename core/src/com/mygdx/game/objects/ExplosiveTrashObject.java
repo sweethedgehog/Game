@@ -38,7 +38,7 @@ public class ExplosiveTrashObject extends GameObject{
                 (getX() + width / 2 < 0));
     }
     @Override
-    public void hit(){
+    public void hit(int typeBonus){
         lives--;
     }
     public void rotateConst(){
