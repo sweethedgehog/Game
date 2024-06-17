@@ -365,23 +365,26 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < ultraKillBonusArray.size(); i++){
             boolean hasToBeDestroyed = ultraKillBonusArray.get(i).wasUsed || !ultraKillBonusArray.get(i).isInFrame();
 
-            if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
-
+            if (ultraKillBonusArray.get(i).wasUsed){
                 for (int j = 0; j < trashArray.size(); j++) {
                     myGdxGame.world.destroyBody(trashArray.get(j).body);
                     trashArray.remove(j--);
+                    gameSession.destructionRegistration();
                 }
                 for (int j = 0; j < explosiveTrashArray.size(); j++) {
                     myGdxGame.world.destroyBody(explosiveTrashArray.get(j).body);
                     explosiveTrashArray.remove(j--);
+                    gameSession.destructionRegistration();
                 }
                 for (int j = 0; j < piratesArray.size(); j++) {
                     myGdxGame.world.destroyBody(piratesArray.get(j).body);
                     piratesArray.remove(j--);
+                    gameSession.destructionRegistration();
                 }
                 enemyBulletArray.clear();
-
+            }
+            if (hasToBeDestroyed) {
+                myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
                 ultraKillBonusArray.remove(i--);
             }
         }
