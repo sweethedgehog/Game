@@ -16,9 +16,11 @@ public class GameSettings {
     public static float PIRATES_VELOCITY = 20;
     public static long STARTING_TRASH_APPEARANCE_COOL_DOWN = 2000; // in [ms] - milliseconds
     public static int BULLET_VELOCITY = 200; // in [m/s] - meter per second
+    public static int SHOTGUN_BULLET_VELOCITY = 20; // in [m/s] - meter per second
+    public static int BARRIER_BULLET_VELOCITY = 100; // in [m/s] - meter per second
     public static int ENEMY_BULLET_VELOCITY = 50; // in [m/s] - meter per second
     public static int ENEMY_BULLET_ROTATE_VELOCITY = 15;
-    public static int SHOOTING_COOL_DOWN = 1000; // in [ms] - milliseconds
+    public static int[] SHOOTING_COOL_DOWN = {1000, 500, 5000}; // in [ms] - milliseconds
     public static int PADDING_HORIZONTAL = 30;
     public static int PIRATES_POS_Y_TO_ROTATE = SCREEN_HEIGHT - 150;
     public static int EXPLOSIVE_TRASH_ROTATE_VELOCITY = 15;
@@ -41,6 +43,8 @@ public class GameSettings {
     public static final int TRASH_SHARP_HEIGHT = 70;
     public static final int BULLET_WIDTH = 15;
     public static final int BULLET_HEIGHT = 45;
+    public static final int SHOTGUN_BULLET_WIDTH = 23;
+    public static final int SHOTGUN_BULLET_HEIGHT = 68;
     public static final int TRASH_MAX_LIVES = 1;
     public static final int EXPLOSIVE_TRASH_MAX_LIVES = 1;
     public static final int SHIP_LIVES = 3;

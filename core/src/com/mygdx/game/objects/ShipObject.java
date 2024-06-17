@@ -1,27 +1,47 @@
 package com.mygdx.game.objects;
 
+import static com.mygdx.game.GameResources.BULLET_IMG_PATH;
+import static com.mygdx.game.GameSettings.BARRIER_BULLET_VELOCITY;
+import static com.mygdx.game.GameSettings.BULLET_HEIGHT;
+import static com.mygdx.game.GameSettings.BULLET_VELOCITY;
+import static com.mygdx.game.GameSettings.BULLET_WIDTH;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
 import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 import static com.mygdx.game.GameSettings.SHIP_BIT;
 import static com.mygdx.game.GameSettings.SHIP_FORCE_RATIO;
 import static com.mygdx.game.GameSettings.SHIP_LIVES;
 import static com.mygdx.game.GameSettings.SHOOTING_COOL_DOWN;
+import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_HEIGHT;
+import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_VELOCITY;
+import static com.mygdx.game.GameSettings.SHOTGUN_BULLET_WIDTH;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
+
+import java.util.ArrayList;
 
 public class ShipObject extends GameObject{
     long lastShotTime;
     int lives;
-
-    public ShipObject(int x, int y, int width, int height, String texturePath, World world) {
+    private int weapon;
+    public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world) {
         super(texturePath, x, y, width, height, SHIP_BIT, world);
         body.setLinearDamping(10);
         lives = SHIP_LIVES;
+        this.weapon = weapon;
+    }
+    public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world, boolean isStatic) {
+        super(texturePath, x, y, width, height, SHIP_BIT, world);
+        body.setLinearDamping(10);
+        lives = SHIP_LIVES;
+        this.weapon = weapon;
+        if (isStatic)
+            body.setType(BodyDef.BodyType.StaticBody);
     }
     private void putInFrame(){
         if((float) getY() > (SCREEN_HEIGHT / 2f - height / 2f)) {
@@ -59,10 +79,46 @@ public class ShipObject extends GameObject{
         return lives;
     }
     public boolean needToShoot(){
-        if (TimeUtils.millis() - lastShotTime >= SHOOTING_COOL_DOWN){
+        if (TimeUtils.millis() - lastShotTime >= SHOOTING_COOL_DOWN[weapon - 1]){
             lastShotTime = TimeUtils.millis();
             return true;
         }
         return false;
+    }
+    public ArrayList<BulletObject> shoot(ArrayList<BulletObject> bulletArray, World world){
+        BulletObject bulletObject;
+        int count;
+        switch (weapon){
+            case 1:
+                bulletObject = new BulletObject(getX(), getY() + height / 2, BULLET_WIDTH, BULLET_HEIGHT, BULLET_IMG_PATH, BULLET_VELOCITY, 90, world);
+                bulletArray.add(bulletObject);
+                break;
+            case 2:
+                count = 5;
+                for (int i = 0; i < count; i++){
+                    bulletObject = new BulletObject(getX(),
+                            getY() + height / 2 + SHOTGUN_BULLET_HEIGHT / 2,
+                            SHOTGUN_BULLET_WIDTH, SHOTGUN_BULLET_HEIGHT, BULLET_IMG_PATH, SHOTGUN_BULLET_VELOCITY,
+                            180 / (count + 1) * (i + 1), 50, world
+                    );
+                    bulletArray.add(bulletObject);
+                }
+                break;
+            case 3:
+                count = 32;
+                for (int i = 0; i < count; i++){
+                    int angle = 360 / count * i;
+                    float nowBulletWidth = (float) (Math.max(SHOTGUN_BULLET_WIDTH, SHOTGUN_BULLET_HEIGHT) * Math.cos(Math.toRadians(angle)));
+                    float nowBulletHeight = (float) (Math.max(SHOTGUN_BULLET_WIDTH, SHOTGUN_BULLET_HEIGHT) * Math.sin(Math.toRadians(angle)));
+                    bulletObject = new BulletObject((int) (getX() + (width / 2 + 20) * Math.cos(Math.toRadians(angle)) + nowBulletWidth / 2),
+                            (int) (getY() + (height / 2 + 10) * Math.sin(Math.toRadians(angle)) + nowBulletHeight / 2),
+                            SHOTGUN_BULLET_WIDTH, SHOTGUN_BULLET_HEIGHT, BULLET_IMG_PATH, BARRIER_BULLET_VELOCITY,
+                            angle, world
+                    );
+                    bulletArray.add(bulletObject);
+                }
+                break;
+        }
+        return bulletArray;
     }
 }

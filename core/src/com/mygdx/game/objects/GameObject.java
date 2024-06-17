@@ -28,6 +28,7 @@ public class GameObject {
 
         sprite = new Sprite(new Texture(texturePath));
         sprite.setOriginCenter();
+        sprite.setSize(width, height);
         body = createBody(x, y, world);
     }
 

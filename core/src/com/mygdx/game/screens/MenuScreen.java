@@ -54,7 +54,7 @@ public class MenuScreen extends ScreenAdapter {
             myGdxGame.touch = myGdxGame.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
             if (startButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
-                myGdxGame.setScreen(myGdxGame.gameScreen);
+                myGdxGame.setScreen(myGdxGame.weaponSelectionScreen);
             }
             if (exitButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
                 Gdx.app.exit();

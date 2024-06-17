@@ -25,6 +25,7 @@ import com.mygdx.game.managers.AudioManager;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.screens.MenuScreen;
 import com.mygdx.game.screens.SettingsScreen;
+import com.mygdx.game.screens.WeaponSelectionScreen;
 
 public class MyGdxGame extends Game {
 	public SpriteBatch batch;
@@ -32,9 +33,11 @@ public class MyGdxGame extends Game {
 	public GameScreen gameScreen;
 	public MenuScreen menuScreen;
 	public SettingsScreen settingsScreen;
+	public WeaponSelectionScreen weaponSelectionScreen;
 	public World world;
 	float accumulator = 0;
 	public Vector3 touch;
+	public int weapon = 1;
 	public BitmapFont largeWhiteFont;
 	public BitmapFont commonWhiteFont;
 	public BitmapFont commonBlackFont;
@@ -43,6 +46,7 @@ public class MyGdxGame extends Game {
 	@Override
 	public void create () {
 		Box2D.init();
+		touch = new Vector3().setZero();
 		world = new World(new Vector2(0, 0), true);
 		largeWhiteFont = FontBuilder.generate(48, Color.WHITE, FONT_PATH);
 		commonWhiteFont = FontBuilder.generate(24, Color.WHITE, FONT_PATH);
@@ -51,6 +55,7 @@ public class MyGdxGame extends Game {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 		gameScreen = new GameScreen(this);
+		weaponSelectionScreen = new WeaponSelectionScreen(this);
 		menuScreen = new MenuScreen(this);
 		settingsScreen = new SettingsScreen(this);
 		audioManager = new AudioManager();

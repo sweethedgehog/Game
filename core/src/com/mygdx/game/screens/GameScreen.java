@@ -3,14 +3,11 @@ package com.mygdx.game.screens;
 import static com.mygdx.game.GameResources.BACKGROUND_IMG_PATH;
 import static com.mygdx.game.GameResources.BLACKOUT_FULL_IMG_PATH;
 import static com.mygdx.game.GameResources.BLACKOUT_TOP_IMG_PATH;
-import static com.mygdx.game.GameResources.BULLET_IMG_PATH;
 import static com.mygdx.game.GameResources.PAUSE_IMG_PATH;
 import static com.mygdx.game.GameResources.PIRATES_IMG_PATH;
 import static com.mygdx.game.GameResources.SHIP_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_IMG_PATH;
 import static com.mygdx.game.GameResources.TRASH_SHARP_IMG_PATH;
-import static com.mygdx.game.GameSettings.BULLET_HEIGHT;
-import static com.mygdx.game.GameSettings.BULLET_WIDTH;
 import static com.mygdx.game.GameSettings.PIRATES_HEIGHT;
 import static com.mygdx.game.GameSettings.PIRATES_WIDTH;
 import static com.mygdx.game.GameSettings.SCREEN_HEIGHT;
@@ -130,7 +127,8 @@ public class GameScreen extends ScreenAdapter {
         shipObject = new ShipObject(
                 SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
                 SHIP_WIDTH, SHIP_HEIGHT,
-                GameResources.SHIP_IMG_PATH,
+                myGdxGame.weapon,
+                SHIP_IMG_PATH,
                 myGdxGame.world
         );
     }
@@ -180,15 +178,16 @@ public class GameScreen extends ScreenAdapter {
 
             }
             if (shipObject.needToShoot()){
-                BulletObject bulletObject = new BulletObject(
-                        shipObject.getX(),
-                        shipObject.getY() + shipObject.height / 2,
-                        BULLET_WIDTH, BULLET_HEIGHT,
-                        BULLET_IMG_PATH,
-                        myGdxGame.world
-                );
+                bulletArray = shipObject.shoot(bulletArray, myGdxGame.world);
+//                BulletObject bulletObject = new BulletObject(
+//                        shipObject.getX(),
+//                        shipObject.getY() + shipObject.height / 2,
+//                        BULLET_WIDTH, BULLET_HEIGHT,
+//                        BULLET_IMG_PATH,
+//                        myGdxGame.world
+//                );
                 if (myGdxGame.audioManager.isSoundOn) myGdxGame.audioManager.shootSound.play();
-                bulletArray.add(bulletObject);
+//                bulletArray.add(bulletObject);
             }
             trashUpdate();
             bulletUpdate();
@@ -206,7 +205,6 @@ public class GameScreen extends ScreenAdapter {
         draw();
     }
     private void restartGame() {
-
         for (int i = 0; i < trashArray.size(); i++) {
             myGdxGame.world.destroyBody(trashArray.get(i).body);
             trashArray.remove(i--);
@@ -225,8 +223,9 @@ public class GameScreen extends ScreenAdapter {
 
         shipObject = new ShipObject(
                 GameSettings.SCREEN_WIDTH / 2, 150,
-                GameSettings.SHIP_WIDTH, GameSettings.SHIP_HEIGHT,
-                GameResources.SHIP_IMG_PATH,
+                SHIP_WIDTH, SHIP_HEIGHT,
+                myGdxGame.weapon,
+                SHIP_IMG_PATH,
                 myGdxGame.world
         );
 
