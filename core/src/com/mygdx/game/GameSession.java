@@ -17,8 +17,11 @@ public class GameSession {
     private int score;
     int destructedTrashNumber;
     public GameState state;
-    public GameSession(){}
-    public void startGame(){
+
+    public GameSession() {
+    }
+
+    public void startGame() {
         justLoose = false;
         sessionStartTime = TimeUtils.millis();
         score = 0;
@@ -26,23 +29,29 @@ public class GameSession {
         state = GameState.PLAYING;
         nextTrashSpawnTime = sessionStartTime + (long) (STARTING_TRASH_APPEARANCE_COOL_DOWN * getTrashPeriodCoolDown());
     }
-    public long spendTime(){
+
+    public long spendTime() {
         return TimeUtils.millis() - sessionStartTime;
     }
-    public long endTime(){
+
+    public long endTime() {
         return endTime - sessionStartTime;
     }
-    public void pauseGame(){
+
+    public void pauseGame() {
         pauseStartTime = TimeUtils.millis();
         state = GameState.PAUSED;
     }
-    public void resumeGame(){
+
+    public void resumeGame() {
         sessionStartTime += TimeUtils.millis() - pauseStartTime;
         state = GameState.PLAYING;
     }
-    public int getDestructedTrashNumber(){
+
+    public int getDestructedTrashNumber() {
         return destructedTrashNumber;
     }
+
     public boolean shouldSpawnTrash() {
         if (nextTrashSpawnTime <= TimeUtils.millis()) {
             nextTrashSpawnTime = TimeUtils.millis() + (long) (STARTING_TRASH_APPEARANCE_COOL_DOWN
@@ -51,37 +60,63 @@ public class GameSession {
         }
         return false;
     }
+
     private float getTrashPeriodCoolDown() {
         return (float) Math.exp(-0.001 * (TimeUtils.millis() - sessionStartTime + 1) / 1000);
     }
+
     public void destructionRegistration() {
         destructedTrashNumber += 1;
     }
+
     public void updateScore() {
         score = (int) (TimeUtils.millis() - sessionStartTime) / 100 + destructedTrashNumber * 100;
     }
+
     public int getScore() {
         return score;
     }
-    public void endGame(boolean needToWriteRes) {
+
+    public void endGame(int mode) {
         state = ENDED;
         if (!justLoose) {
             endTime = TimeUtils.millis();
             justLoose = true;
         }
         updateScore();
-        if (needToWriteRes) {
-            ArrayList<Integer> recordsTable = MemoryManager.loadRecordsTable();
-            if (recordsTable == null) {
-                recordsTable = new ArrayList<>();
-            }
-            int foundIdx = 0;
-            for (; foundIdx < recordsTable.size(); foundIdx++)
-                if (recordsTable.get(foundIdx) < getScore())
-                    break;
+        int foundIdx = 0;
+        switch (mode) {
+            case 0:
+                ArrayList<Integer> recordsTable = MemoryManager.loadRecordsTable();
+                if (recordsTable == null) {
+                    recordsTable = new ArrayList<>();
+                }
+                for (; foundIdx < recordsTable.size(); foundIdx++)
+                    if (recordsTable.get(foundIdx) < getScore())
+                        break;
 
-            recordsTable.add(foundIdx, getScore());
-            MemoryManager.saveTableOfRecords(recordsTable);
+                recordsTable.add(foundIdx, getScore());
+                MemoryManager.saveTableOfRecords(recordsTable);
+                break;
+            case 3:
+                ArrayList<Integer> recordsTableForProtection = MemoryManager.loadRecordsTableInProtection();
+                if (recordsTableForProtection == null) {
+                    recordsTableForProtection = new ArrayList<>();
+                }
+                for (; foundIdx < recordsTableForProtection.size(); foundIdx++)
+                    if (recordsTableForProtection.get(foundIdx) < spendTime() / 1000)
+                        break;
+
+                recordsTableForProtection.add(foundIdx, (int) spendTime() / 1000);
+                MemoryManager.saveTableOfRecordsInProtection(recordsTableForProtection);
+                break;
+        }
+    }
+    public void endGame(){
+        state = ENDED;
+        if (!justLoose) {
+            endTime = TimeUtils.millis();
+            justLoose = true;
         }
     }
 }

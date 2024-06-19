@@ -37,5 +37,17 @@ public class MemoryManager {
         ArrayList<Integer> table = json.fromJson(ArrayList.class, scores);
         return table;
     }
+    public static void saveTableOfRecordsInProtection(ArrayList<Integer> table) {
+        Json json = new Json();
+        String tableInString = json.toJson(table);
+        preferences.putString("recordTableForProtection", tableInString);
+        preferences.flush();
+    }
+    public static ArrayList<Integer> loadRecordsTableInProtection() {
+        String scores = preferences.getString("recordTableForProtection");
+        Json json = new Json();
+        ArrayList<Integer> table = json.fromJson(ArrayList.class, scores);
+        return table;
+    }
 }
 

@@ -31,10 +31,12 @@ import com.mygdx.game.components.MovingBackGroundView;
 import com.mygdx.game.components.TextView;
 import com.mygdx.game.managers.ContactManager;
 import com.mygdx.game.objects.BulletObject;
+import com.mygdx.game.objects.GameObject;
 import com.mygdx.game.objects.ShipObject;
 import com.mygdx.game.objects.TrashObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TrashCollectionMiniGameScreen extends ScreenAdapter {
     MyGdxGame myGdxGame;
@@ -118,7 +120,7 @@ public class TrashCollectionMiniGameScreen extends ScreenAdapter {
 
             if (COUNT_OF_TRASH_TO_DESTRUCT_IN_TRASH_COLLECTOR - gameSession.getDestructedTrashNumber() <= 0) {
                 endGameTextView.setText("You win!");
-                gameSession.endGame(false);
+                gameSession.endGame();
             }
             trashDestructedView.setText((COUNT_OF_TRASH_TO_DESTRUCT_IN_TRASH_COLLECTOR - gameSession.getDestructedTrashNumber()) + " trash left");
             liveView.setLeftLives(shipObject.getLiveLeft());
@@ -138,29 +140,27 @@ public class TrashCollectionMiniGameScreen extends ScreenAdapter {
             bulletUpdate();
             if (!shipObject.isAlive()) {
                 endGameTextView.setText("You lose!");
-                gameSession.endGame(false);
+                gameSession.endGame();
             }
             movingBackGroundView.move();
         }
         draw();
     }
     private void restartGame(){
-        for (int i = 0; i < trashArray.size(); i++) {
-            myGdxGame.world.destroyBody(trashArray.get(i).body);
-            trashArray.remove(i--);
-        }
+        clearObjectArray(trashArray);
+        clearObjectArray(bulletArray);
+
         if (shipObject != null)
             myGdxGame.world.destroyBody(shipObject.body);
 
         shipObject = new ShipObject(
                 GameSettings.SCREEN_WIDTH / 2, 150,
                 SHIP_WIDTH, SHIP_HEIGHT,
-                1,
+                myGdxGame.weapon,
                 SHIP_IMG_PATH,
                 myGdxGame.world
         );
 
-        bulletArray.clear();
         gameSession.startGame();
     }
     private void handleInput() {
@@ -187,27 +187,32 @@ public class TrashCollectionMiniGameScreen extends ScreenAdapter {
             }
         }
     }
-    private void trashUpdate(){
-        for (int i = 0; i < trashArray.size(); i++){
-            boolean hasToBeDestroyed = !trashArray.get(i).isAlive() || !trashArray.get(i).isInFrame();
+    private void trashUpdate() {
+        Iterator<TrashObject> iterator = trashArray.iterator();
+        while (iterator.hasNext()) {
+            TrashObject trash = iterator.next();
+            boolean hasToBeDestroyed = !trash.isAlive() || !trash.isInFrame();
 
-            if (!trashArray.get(i).isAlive()) {
+            if (!trash.isAlive()) {
                 gameSession.destructionRegistration();
                 if (myGdxGame.audioManager.isSoundOn)
                     myGdxGame.audioManager.explosionSound.play(0.2f);
             }
 
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(trashArray.get(i).body);
-                trashArray.remove(i--);
+                myGdxGame.world.destroyBody(trash.body);
+                iterator.remove();
             }
         }
     }
-    private void bulletUpdate(){
-        for (int i = 0; i < bulletArray.size(); i++){
-            if (bulletArray.get(i).hasToBeDestroyed()){
-                myGdxGame.world.destroyBody(bulletArray.get(i).body);
-                bulletArray.remove(i--);
+
+    private void bulletUpdate() {
+        Iterator<BulletObject> iterator = bulletArray.iterator();
+        while (iterator.hasNext()) {
+            BulletObject bullet = iterator.next();
+            if (bullet.hasToBeDestroyed()) {
+                myGdxGame.world.destroyBody(bullet.body);
+                iterator.remove();
             }
         }
     }
@@ -239,5 +244,13 @@ public class TrashCollectionMiniGameScreen extends ScreenAdapter {
             homeButton2.draw(myGdxGame.batch);
         }
         myGdxGame.batch.end();
+    }
+    private void clearObjectArray(ArrayList<? extends GameObject> arrayList) {
+        Iterator<? extends GameObject> iterator = arrayList.iterator();
+        while (iterator.hasNext()) {
+            GameObject element = iterator.next();
+            myGdxGame.world.destroyBody(element.body);
+            iterator.remove();
+        }
     }
 }

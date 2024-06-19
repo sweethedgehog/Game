@@ -32,8 +32,8 @@ public class MiniGamesSelectionScreen extends ScreenAdapter {
     ButtonView returnButtonView;
     ImageView selectionView;
     String piratesExplanation = "You have very valuable cargo\non board. But, alas, your\nweapon is broken. Leave for " + MINUTES_TO_SURVIVAL_IN_PIRATES + "\nminutes until help arrives to\nyou!";
-    String trashCollectionExplanation = "You have been assigned a\nmission to clear the Earth's \norbit of trash. Remove " + COUNT_OF_TRASH_TO_DESTRUCT_IN_TRASH_COLLECTOR + " \nwith weapon 1 trash to\ncomplete the task!";
-    String protectionExplanation = "You have been entrusted with\nthe mission of protecting the\nescape capsule from all kinds\nof dangers. Protect her\nwith weapon 1 as long as you\ncan!";
+    String trashCollectionExplanation = "You have been assigned a\nmission to clear the Earth's \norbit of trash. Remove " + COUNT_OF_TRASH_TO_DESTRUCT_IN_TRASH_COLLECTOR + " \ntrash to complete the task!";
+    String protectionExplanation = "You have been entrusted with\nthe mission of protecting the\nescape capsule from all kinds\nof dangers. Protect her\nas long as you can!";
     int modeSelection;
     public MiniGamesSelectionScreen(MyGdxGame myGdxGame){
         this.myGdxGame = myGdxGame;
@@ -107,14 +107,18 @@ public class MiniGamesSelectionScreen extends ScreenAdapter {
                 explanation.setText(piratesExplanation);
             }
             if (trashCollectorMiniGame.isHit(myGdxGame.touch.x, myGdxGame.touch.y)){
-                if (modeSelection == 2)
-                    myGdxGame.setScreen(myGdxGame.trashCollectionMiniGameScreen);
+                if (modeSelection == 2) {
+                    myGdxGame.weaponSelectionScreen.setGameMode(2);
+                    myGdxGame.setScreen(myGdxGame.weaponSelectionScreen);
+                }
                 modeSelection = 2;
                 explanation.setText(trashCollectionExplanation);
             }
             if (protectionMiniGame.isHit(myGdxGame.touch.x, myGdxGame.touch.y)){
-                if (modeSelection == 3)
-                    myGdxGame.setScreen(myGdxGame.protectTheSurvivorsMiniGameScreen);
+                if (modeSelection == 3) {
+                    myGdxGame.weaponSelectionScreen.setGameMode(3);
+                    myGdxGame.setScreen(myGdxGame.weaponSelectionScreen);
+                }
                 modeSelection = 3;
                 explanation.setText(protectionExplanation);
             }

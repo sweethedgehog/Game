@@ -35,10 +35,12 @@ import com.mygdx.game.components.LiveView;
 import com.mygdx.game.components.MovingBackGroundView;
 import com.mygdx.game.components.TextView;
 import com.mygdx.game.managers.ContactManager;
+import com.mygdx.game.objects.GameObject;
 import com.mygdx.game.objects.PiratesObject;
 import com.mygdx.game.objects.ShipObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PiratesMiniGameScreen extends ScreenAdapter {
     MyGdxGame myGdxGame;
@@ -127,7 +129,7 @@ public class PiratesMiniGameScreen extends ScreenAdapter {
                 seconds = "" + timeLeft % 60;
             if (timeLeft <= 0){
                 endGameTextView.setText("You win!");
-                gameSession.endGame(false);
+                gameSession.endGame();
             }
             timeTextView.setText("Time left: " + timeLeft / 60 + ":" + seconds);
             liveView.setLeftLives(shipObject.getLiveLeft());
@@ -142,19 +144,14 @@ public class PiratesMiniGameScreen extends ScreenAdapter {
             piratesUpdate();
             if (!shipObject.isAlive()){
                 endGameTextView.setText("You lose!");
-                gameSession.endGame(false);
+                gameSession.endGame();
             }
             movingBackGroundView.move();
         }
         draw();
     }
     private void restartGame(){
-        Array<Body> r = new Array<>();
-        myGdxGame.world.getBodies(r);
-        for (int i = 0; i < piratesArray.size(); i++) {
-            myGdxGame.world.destroyBody(piratesArray.get(i).body);
-            piratesArray.remove(i--);
-        }
+        clearObjectArray(piratesArray);
         if (shipObject != null)
             myGdxGame.world.destroyBody(shipObject.body);
 
@@ -193,19 +190,21 @@ public class PiratesMiniGameScreen extends ScreenAdapter {
         }
     }
     private void piratesUpdate(){
-        for (int i = 0; i < piratesArray.size(); i++){
-            boolean hasToBeDestroyed = !piratesArray.get(i).isAlive() || !piratesArray.get(i).isInFrame();
+        Iterator<PiratesObject> iterator = piratesArray.iterator();
+        while (iterator.hasNext()) {
+            PiratesObject pirate = iterator.next();
+            boolean hasToBeDestroyed = !pirate.isAlive() || !pirate.isInFrame();
 
-            if (!piratesArray.get(i).isAlive()) {
+            if (!pirate.isAlive()) {
                 gameSession.destructionRegistration();
                 if (myGdxGame.audioManager.isSoundOn)
                     myGdxGame.audioManager.explosionSound.play(0.2f);
             }
-            if (piratesArray.get(i).needToRotate())
-                piratesArray.get(i).rotateToPos(new Vector2(shipObject.getX(), shipObject.getY()));
+            if (pirate.needToRotate())
+                pirate.rotateToPos(new Vector2(shipObject.getX(), shipObject.getY()));
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(piratesArray.get(i).body);
-                piratesArray.remove(i--);
+                myGdxGame.world.destroyBody(pirate.body);
+                iterator.remove();
             }
         }
     }
@@ -235,5 +234,13 @@ public class PiratesMiniGameScreen extends ScreenAdapter {
             homeButton2.draw(myGdxGame.batch);
         }
         myGdxGame.batch.end();
+    }
+    private void clearObjectArray(ArrayList<? extends GameObject> arrayList) {
+        Iterator<? extends GameObject> iterator = arrayList.iterator();
+        while (iterator.hasNext()) {
+            GameObject element = iterator.next();
+            myGdxGame.world.destroyBody(element.body);
+            iterator.remove();
+        }
     }
 }

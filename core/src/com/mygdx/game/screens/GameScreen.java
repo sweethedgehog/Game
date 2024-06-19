@@ -48,6 +48,7 @@ import com.mygdx.game.managers.MemoryManager;
 import com.mygdx.game.objects.BulletObject;
 import com.mygdx.game.objects.EnemyBullet;
 import com.mygdx.game.objects.ExplosiveTrashObject;
+import com.mygdx.game.objects.GameObject;
 import com.mygdx.game.objects.HealBonusObject;
 import com.mygdx.game.objects.PiratesObject;
 import com.mygdx.game.objects.ShieldBonusObject;
@@ -56,6 +57,7 @@ import com.mygdx.game.objects.TrashObject;
 import com.mygdx.game.objects.UltraKillBonusObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
@@ -207,7 +209,7 @@ public class GameScreen extends ScreenAdapter {
             ultraKillUpdate();
 
             if (!shipObject.isAlive()) {
-                gameSession.endGame(true);
+                gameSession.endGame(0);
                 recordsListView.setRecords(MemoryManager.loadRecordsTable());
             }
 
@@ -216,30 +218,14 @@ public class GameScreen extends ScreenAdapter {
         draw();
     }
     private void restartGame() {
-        for (int i = 0; i < trashArray.size(); i++) {
-            myGdxGame.world.destroyBody(trashArray.get(i).body);
-            trashArray.remove(i--);
-        }
-        for (int i = 0; i < explosiveTrashArray.size(); i++) {
-            myGdxGame.world.destroyBody(explosiveTrashArray.get(i).body);
-            explosiveTrashArray.remove(i--);
-        }
-        for (int i = 0; i < piratesArray.size(); i++) {
-            myGdxGame.world.destroyBody(piratesArray.get(i).body);
-            piratesArray.remove(i--);
-        }
-        for (int i = 0; i < healBonusArray.size(); i++) {
-            myGdxGame.world.destroyBody(healBonusArray.get(i).body);
-            healBonusArray.remove(i--);
-        }
-        for (int i = 0; i < shieldBonusArray.size(); i++) {
-            myGdxGame.world.destroyBody(shieldBonusArray.get(i).body);
-            shieldBonusArray.remove(i--);
-        }
-        for (int i = 0; i < ultraKillBonusArray.size(); i++) {
-            myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
-            ultraKillBonusArray.remove(i--);
-        }
+        clearObjectArray(trashArray, false);
+        clearObjectArray(explosiveTrashArray, false);
+        clearObjectArray(piratesArray, false);
+        clearObjectArray(healBonusArray, false);
+        clearObjectArray(shieldBonusArray, false);
+        clearObjectArray(ultraKillBonusArray, false);
+        clearObjectArray(bulletArray, false);
+        clearObjectArray(enemyBulletArray, false);
 
         if (shipObject != null)
             myGdxGame.world.destroyBody(shipObject.body);
@@ -252,8 +238,6 @@ public class GameScreen extends ScreenAdapter {
                 myGdxGame.world
         );
 
-        bulletArray.clear();
-        enemyBulletArray.clear();
         gameSession.startGame();
     }
 
@@ -324,134 +308,146 @@ public class GameScreen extends ScreenAdapter {
         }
         myGdxGame.batch.end();
     }
-    private void trashUpdate(){
-        for (int i = 0; i < trashArray.size(); i++){
-            boolean hasToBeDestroyed = !trashArray.get(i).isAlive() || !trashArray.get(i).isInFrame();
+    private void trashUpdate() {
+        Iterator<TrashObject> iterator = trashArray.iterator();
+        while (iterator.hasNext()) {
+            TrashObject trash = iterator.next();
+            boolean hasToBeDestroyed = !trash.isAlive() || !trash.isInFrame();
 
-            if (!trashArray.get(i).isAlive()) {
+            if (!trash.isAlive()) {
                 gameSession.destructionRegistration();
                 if (myGdxGame.audioManager.isSoundOn)
                     myGdxGame.audioManager.explosionSound.play(0.2f);
             }
 
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(trashArray.get(i).body);
-                trashArray.remove(i--);
+                myGdxGame.world.destroyBody(trash.body);
+                iterator.remove();
             }
         }
     }
-    private void healBonusUpdate(){
-        for (int i = 0; i < healBonusArray.size(); i++){
-            boolean hasToBeDestroyed = healBonusArray.get(i).wasUsed || !healBonusArray.get(i).isInFrame();
+    private void healBonusUpdate() {
+        Iterator<HealBonusObject> iterator = healBonusArray.iterator();
+        while (iterator.hasNext()) {
+            HealBonusObject healBonus = iterator.next();
+            boolean hasToBeDestroyed = healBonus.wasUsed || !healBonus.isInFrame();
 
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(healBonusArray.get(i).body);
-                healBonusArray.remove(i--);
+                myGdxGame.world.destroyBody(healBonus.body);
+                iterator.remove();
             }
         }
     }
     private void shieldBonusUpdate(){
-        for (int i = 0; i < shieldBonusArray.size(); i++){
-            boolean hasToBeDestroyed = shieldBonusArray.get(i).wasUsed || !shieldBonusArray.get(i).isInFrame();
+        Iterator<ShieldBonusObject> iterator = shieldBonusArray.iterator();
+        while (iterator.hasNext()) {
+            ShieldBonusObject shieldBonus = iterator.next();
+            boolean hasToBeDestroyed = shieldBonus.wasUsed || !shieldBonus.isInFrame();
 
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(shieldBonusArray.get(i).body);
-                shieldBonusArray.remove(i--);
+                myGdxGame.world.destroyBody(shieldBonus.body);
+                iterator.remove();
             }
         }
     }
     private void ultraKillUpdate(){
-        for (int i = 0; i < ultraKillBonusArray.size(); i++){
-            boolean hasToBeDestroyed = ultraKillBonusArray.get(i).wasUsed || !ultraKillBonusArray.get(i).isInFrame();
-
-            if (ultraKillBonusArray.get(i).wasUsed){
-                for (int j = 0; j < trashArray.size(); j++) {
-                    myGdxGame.world.destroyBody(trashArray.get(j).body);
-                    trashArray.remove(j--);
-                    gameSession.destructionRegistration();
-                }
-                for (int j = 0; j < explosiveTrashArray.size(); j++) {
-                    myGdxGame.world.destroyBody(explosiveTrashArray.get(j).body);
-                    explosiveTrashArray.remove(j--);
-                    gameSession.destructionRegistration();
-                }
-                for (int j = 0; j < piratesArray.size(); j++) {
-                    myGdxGame.world.destroyBody(piratesArray.get(j).body);
-                    piratesArray.remove(j--);
-                    gameSession.destructionRegistration();
-                }
-                enemyBulletArray.clear();
+        Iterator<UltraKillBonusObject> iterator = ultraKillBonusArray.iterator();
+        while (iterator.hasNext()) {
+            UltraKillBonusObject ultraKillBonus = iterator.next();
+            boolean hasToBeDestroyed = ultraKillBonus.wasUsed || !ultraKillBonus.isInFrame();
+            if (ultraKillBonus.wasUsed){
+                clearObjectArray(trashArray, true);
+                clearObjectArray(piratesArray, true);
+                clearObjectArray(explosiveTrashArray, true);
+                clearObjectArray(enemyBulletArray, false);
             }
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(ultraKillBonusArray.get(i).body);
-                ultraKillBonusArray.remove(i--);
+                myGdxGame.world.destroyBody(ultraKillBonus.body);
+                iterator.remove();
             }
         }
     }
     private void piratesUpdate(){
-        for (int i = 0; i < piratesArray.size(); i++){
-            boolean hasToBeDestroyed = !piratesArray.get(i).isAlive() || !piratesArray.get(i).isInFrame();
+        Iterator<PiratesObject> iterator = piratesArray.iterator();
+        while (iterator.hasNext()) {
+            PiratesObject pirate = iterator.next();
+            boolean hasToBeDestroyed = !pirate.isAlive() || !pirate.isInFrame();
 
-            if (!piratesArray.get(i).isAlive()) {
+            if (!pirate.isAlive()) {
                 gameSession.destructionRegistration();
                 if (myGdxGame.audioManager.isSoundOn)
                     myGdxGame.audioManager.explosionSound.play(0.2f);
             }
-            if (piratesArray.get(i).needToRotate())
-                piratesArray.get(i).rotateToPos(new Vector2(shipObject.getX(), shipObject.getY()));
+            if (pirate.needToRotate())
+                pirate.rotateToPos(new Vector2(shipObject.getX(), shipObject.getY()));
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(piratesArray.get(i).body);
-                piratesArray.remove(i--);
+                myGdxGame.world.destroyBody(pirate.body);
+                iterator.remove();
             }
         }
     }
     private void explosiveTrashUpdate(){
-        for (int i = 0; i < explosiveTrashArray.size(); i++){
+        Iterator<ExplosiveTrashObject> iterator = explosiveTrashArray.iterator();
+        while (iterator.hasNext()) {
+            ExplosiveTrashObject explosiveTrash = iterator.next();
+            boolean hasToBeDestroyed = !explosiveTrash.isAlive() || !explosiveTrash.isInFrame() || shipObject.getY() >= explosiveTrash.getY();
+            explosiveTrash.rotateConst();
 
-            boolean hasToBeDestroyed = !explosiveTrashArray.get(i).isAlive() || !explosiveTrashArray.get(i).isInFrame() || shipObject.getY() >= explosiveTrashArray.get(i).getY();
-            explosiveTrashArray.get(i).rotateConst();
-
-            if (!explosiveTrashArray.get(i).isAlive() || shipObject.getY() >= explosiveTrashArray.get(i).getY()) {
+            if (!explosiveTrash.isAlive() || shipObject.getY() >= explosiveTrash.getY()) {
                 gameSession.destructionRegistration();
                 if (myGdxGame.audioManager.isSoundOn)
                     myGdxGame.audioManager.explosionSound.play(0.2f);
                 EnemyBullet enemyBullet1 = new EnemyBullet(
-                        explosiveTrashArray.get(i).getX() + explosiveTrashArray.get(i).width / 2,
-                        explosiveTrashArray.get(i).getY(),
+                        explosiveTrash.getX() + explosiveTrash.width / 2,
+                        explosiveTrash.getY(),
                         TRASH_SHARP_WIDTH, TRASH_SHARP_HEIGHT,
                         TRASH_SHARP_IMG_PATH, myGdxGame.world, 0, true
-                        );
+                );
                 enemyBulletArray.add(enemyBullet1);
                 EnemyBullet enemyBullet2 = new EnemyBullet(
-                        explosiveTrashArray.get(i).getX() - explosiveTrashArray.get(i).width / 2,
-                        explosiveTrashArray.get(i).getY(),
+                        explosiveTrash.getX() - explosiveTrash.width / 2,
+                        explosiveTrash.getY(),
                         TRASH_SHARP_WIDTH, TRASH_SHARP_HEIGHT,
                         TRASH_SHARP_IMG_PATH, myGdxGame.world, 180, true
-                        );
+                );
                 enemyBulletArray.add(enemyBullet2);
             }
 
             if (hasToBeDestroyed) {
-                myGdxGame.world.destroyBody(explosiveTrashArray.get(i).body);
-                explosiveTrashArray.remove(i--);
+                myGdxGame.world.destroyBody(explosiveTrash.body);
+                iterator.remove();
             }
         }
     }
-    private void bulletUpdate(){
-        for (int i = 0; i < bulletArray.size(); i++){
-            if (bulletArray.get(i).hasToBeDestroyed()){
-                myGdxGame.world.destroyBody(bulletArray.get(i).body);
-                bulletArray.remove(i--);
+    private void bulletUpdate() {
+        Iterator<BulletObject> iterator = bulletArray.iterator();
+        while (iterator.hasNext()) {
+            BulletObject bullet = iterator.next();
+            if (bullet.hasToBeDestroyed()) {
+                myGdxGame.world.destroyBody(bullet.body);
+                iterator.remove();
             }
         }
     }
-    private void enemyBulletUpdate(){
-        for (int i = 0; i < enemyBulletArray.size(); i++){
-            enemyBulletArray.get(i).rotateConst();
-            if (enemyBulletArray.get(i).hasToBeDestroyed()){
-                    myGdxGame.world.destroyBody(enemyBulletArray.get(i).body);
-                enemyBulletArray.remove(i--);
+    private void enemyBulletUpdate() {
+        Iterator<EnemyBullet> iterator = enemyBulletArray.iterator();
+        while (iterator.hasNext()) {
+            EnemyBullet bullet = iterator.next();
+            bullet.rotateConst();
+            if (bullet.hasToBeDestroyed()) {
+                myGdxGame.world.destroyBody(bullet.body);
+                iterator.remove();
             }
+        }
+    }
+    private void clearObjectArray(ArrayList<? extends GameObject> arrayList, boolean addScore) {
+        Iterator<? extends GameObject> iterator = arrayList.iterator();
+        while (iterator.hasNext()) {
+            GameObject element = iterator.next();
+            myGdxGame.world.destroyBody(element.body);
+            if (addScore)
+                gameSession.destructionRegistration();
+            iterator.remove();
         }
     }
 }

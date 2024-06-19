@@ -19,10 +19,12 @@ import com.mygdx.game.components.MovingBackGroundView;
 import com.mygdx.game.components.TextView;
 import com.mygdx.game.managers.MemoryManager;
 import com.mygdx.game.objects.BulletObject;
+import com.mygdx.game.objects.GameObject;
 import com.mygdx.game.objects.ShipObject;
 
 import java.awt.SystemTray;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class WeaponSelectionScreen extends ScreenAdapter {
     MyGdxGame myGdxGame;
@@ -35,6 +37,7 @@ public class WeaponSelectionScreen extends ScreenAdapter {
     ShipObject preview1;
     ShipObject preview3;
     ShipObject preview2;
+    int gameMode;
     private static final int buttonPosY = SCREEN_HEIGHT / 8 - 35;
     public WeaponSelectionScreen(MyGdxGame myGdxGame){
         this.myGdxGame = myGdxGame;
@@ -63,6 +66,9 @@ public class WeaponSelectionScreen extends ScreenAdapter {
                 "weapon3"
         );
 
+    }
+    public void setGameMode(int gameMode){
+        this.gameMode = gameMode;
     }
     @Override
     public void show(){
@@ -102,28 +108,45 @@ public class WeaponSelectionScreen extends ScreenAdapter {
 
         bulletUpdate();
     }
-    public void startGame(){
+    private void startGame(int gameMode){
         myGdxGame.world.destroyBody(preview1.body);
         myGdxGame.world.destroyBody(preview2.body);
         myGdxGame.world.destroyBody(preview3.body);
+        Iterator<BulletObject> iterator = bulletArray.iterator();
+        while (iterator.hasNext()) {
+            BulletObject bullet = iterator.next();
+            myGdxGame.world.destroyBody(bullet.body);
+            iterator.remove();
+        }
+        switch (gameMode){
+            case 0:
+                myGdxGame.setScreen(myGdxGame.gameScreen);
+                break;
+            case 1:
+                myGdxGame.setScreen(myGdxGame.piratesMiniGameScreen);
+                break;
+            case 2:
+                myGdxGame.setScreen(myGdxGame.trashCollectionMiniGameScreen);
+                break;
+            case 3:
+                myGdxGame.setScreen(myGdxGame.protectTheSurvivorsMiniGameScreen);
+                break;
+        }
     }
     private void handleInput(){
         if (Gdx.input.justTouched()) {
             myGdxGame.touch = myGdxGame.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
             if (weapon1.isHit(myGdxGame.touch.x, myGdxGame.touch.y)){
                 myGdxGame.weapon = 1;
-                startGame();
-                myGdxGame.setScreen(myGdxGame.gameScreen);
+                startGame(gameMode);
             }
             if (weapon2.isHit(myGdxGame.touch.x, myGdxGame.touch.y)){
                 myGdxGame.weapon = 2;
-                startGame();
-                myGdxGame.setScreen(myGdxGame.gameScreen);
+                startGame(gameMode);
             }
             if (weapon3.isHit(myGdxGame.touch.x, myGdxGame.touch.y)){
                 myGdxGame.weapon = 3;
-                startGame();
-                myGdxGame.setScreen(myGdxGame.gameScreen);
+                startGame(gameMode);
             }
 
         }

@@ -60,6 +60,7 @@ public class MenuScreen extends ScreenAdapter {
                 myGdxGame.setScreen(myGdxGame.miniGamesSelectionScreen);
             }
             if (startButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
+                myGdxGame.weaponSelectionScreen.setGameMode(0);
                 myGdxGame.setScreen(myGdxGame.weaponSelectionScreen);
             }
             if (exitButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
