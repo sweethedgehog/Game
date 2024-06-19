@@ -81,6 +81,7 @@ public class GameScreen extends ScreenAdapter {
     ImageView fullBlackoutView;
     LiveView liveView;
     TextView scoreTextView;
+    TextView endGameTextView;
     TextView pauseTextView;
     ButtonView homeButton;
     ButtonView continueButton;
@@ -102,7 +103,8 @@ public class GameScreen extends ScreenAdapter {
 
         scoreTextView = new TextView(myGdxGame.commonWhiteFont, 50, 1215);
         pauseTextView = new TextView(myGdxGame.largeWhiteFont, 282, 842, "Pause");
-        recordsTextView = new TextView(myGdxGame.largeWhiteFont, 206, 842, "Last records");
+        endGameTextView = new TextView(myGdxGame.largeWhiteFont, 175, 842);
+        recordsTextView = new TextView(myGdxGame.largeWhiteFont, 206, 782, "Last records");
 
         liveView = new LiveView(305, 1215);
 
@@ -302,6 +304,8 @@ public class GameScreen extends ScreenAdapter {
         }
         else if (gameSession.state == GameState.ENDED) {
             fullBlackoutView.draw(myGdxGame.batch);
+            endGameTextView.setText("You gained " + gameSession.getScore() + "\n       score!");
+            endGameTextView.draw(myGdxGame.batch);
             recordsTextView.draw(myGdxGame.batch);
             recordsListView.draw(myGdxGame.batch);
             homeButton2.draw(myGdxGame.batch);
