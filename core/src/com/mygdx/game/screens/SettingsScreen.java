@@ -46,6 +46,10 @@ public class SettingsScreen extends ScreenAdapter {
         );
     }
     @Override
+    public void show(){
+        clearSettingView.setText("clear records");
+    }
+    @Override
     public void render(float delta) {
         handleInput();
 

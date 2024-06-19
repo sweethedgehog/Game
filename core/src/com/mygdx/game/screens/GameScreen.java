@@ -29,6 +29,8 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.components.RecordsListView;
 import com.mygdx.game.managers.ContactManager;
@@ -60,6 +62,7 @@ public class GameScreen extends ScreenAdapter {
     MyGdxGame myGdxGame;
     ShipObject shipObject;
     GameSession gameSession;
+
     ArrayList<TrashObject> trashArray;
     ArrayList<BulletObject> bulletArray;
     ArrayList<EnemyBullet> enemyBulletArray;
@@ -68,7 +71,9 @@ public class GameScreen extends ScreenAdapter {
     ArrayList<HealBonusObject> healBonusArray;
     ArrayList<ShieldBonusObject> shieldBonusArray;
     ArrayList<UltraKillBonusObject> ultraKillBonusArray;
+
     ContactManager contactManager;
+
     MovingBackGroundView movingBackGroundView;
     ImageView topBlackoutView;
     ImageView fullBlackoutView;
@@ -81,6 +86,7 @@ public class GameScreen extends ScreenAdapter {
     TextView recordsTextView;
     RecordsListView recordsListView;
     ButtonView homeButton2;
+
     public GameScreen (MyGdxGame myGdxGame){
         this.myGdxGame = myGdxGame;
 
@@ -136,13 +142,6 @@ public class GameScreen extends ScreenAdapter {
         shieldBonusArray = new ArrayList<>();
         ultraKillBonusArray = new ArrayList<>();
 
-        shipObject = new ShipObject(
-                SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4,
-                SHIP_WIDTH, SHIP_HEIGHT,
-                myGdxGame.weapon,
-                SHIP_IMG_PATH,
-                myGdxGame.world
-        );
     }
 
     @Override
@@ -208,7 +207,7 @@ public class GameScreen extends ScreenAdapter {
             ultraKillUpdate();
 
             if (!shipObject.isAlive()) {
-                gameSession.endGame();
+                gameSession.endGame(true);
                 recordsListView.setRecords(MemoryManager.loadRecordsTable());
             }
 

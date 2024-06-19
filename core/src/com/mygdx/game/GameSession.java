@@ -12,16 +12,25 @@ public class GameSession {
     long nextTrashSpawnTime;
     long sessionStartTime;
     long pauseStartTime;
+    long endTime;
+    boolean justLoose;
     private int score;
     int destructedTrashNumber;
     public GameState state;
     public GameSession(){}
     public void startGame(){
+        justLoose = false;
         sessionStartTime = TimeUtils.millis();
         score = 0;
         destructedTrashNumber = 0;
         state = GameState.PLAYING;
         nextTrashSpawnTime = sessionStartTime + (long) (STARTING_TRASH_APPEARANCE_COOL_DOWN * getTrashPeriodCoolDown());
+    }
+    public long spendTime(){
+        return TimeUtils.millis() - sessionStartTime;
+    }
+    public long endTime(){
+        return endTime - sessionStartTime;
     }
     public void pauseGame(){
         pauseStartTime = TimeUtils.millis();
@@ -30,6 +39,9 @@ public class GameSession {
     public void resumeGame(){
         sessionStartTime += TimeUtils.millis() - pauseStartTime;
         state = GameState.PLAYING;
+    }
+    public int getDestructedTrashNumber(){
+        return destructedTrashNumber;
     }
     public boolean shouldSpawnTrash() {
         if (nextTrashSpawnTime <= TimeUtils.millis()) {
@@ -51,19 +63,25 @@ public class GameSession {
     public int getScore() {
         return score;
     }
-    public void endGame() {
-        updateScore();
+    public void endGame(boolean needToWriteRes) {
         state = ENDED;
-        ArrayList<Integer> recordsTable = MemoryManager.loadRecordsTable();
-        if (recordsTable == null) {
-            recordsTable = new ArrayList<>();
+        if (!justLoose) {
+            endTime = TimeUtils.millis();
+            justLoose = true;
         }
-        int foundIdx = 0;
-        for (; foundIdx < recordsTable.size(); foundIdx++)
-            if (recordsTable.get(foundIdx) < getScore())
-                break;
+        updateScore();
+        if (needToWriteRes) {
+            ArrayList<Integer> recordsTable = MemoryManager.loadRecordsTable();
+            if (recordsTable == null) {
+                recordsTable = new ArrayList<>();
+            }
+            int foundIdx = 0;
+            for (; foundIdx < recordsTable.size(); foundIdx++)
+                if (recordsTable.get(foundIdx) < getScore())
+                    break;
 
-        recordsTable.add(foundIdx, getScore());
-        MemoryManager.saveTableOfRecords(recordsTable);
+            recordsTable.add(foundIdx, getScore());
+            MemoryManager.saveTableOfRecords(recordsTable);
+        }
     }
 }

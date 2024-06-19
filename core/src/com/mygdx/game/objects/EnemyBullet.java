@@ -10,6 +10,7 @@ import static com.mygdx.game.GameSettings.SCREEN_WIDTH;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class EnemyBullet extends GameObject{
@@ -25,6 +26,7 @@ public class EnemyBullet extends GameObject{
         body.setBullet(true);
         setRotation(rotate - 90);
         wasHit = false;
+        body.setType(BodyDef.BodyType.KinematicBody);
         this.isRotating = isRotating;
         this.rotate = rotate;
     }

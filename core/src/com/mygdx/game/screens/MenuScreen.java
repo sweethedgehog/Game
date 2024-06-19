@@ -19,6 +19,7 @@ public class MenuScreen extends ScreenAdapter {
     MovingBackGroundView backGroundView;
     TextView titleView;
     ButtonView startButtonView;
+    ButtonView miniGamesButtonView;
     ButtonView settingsButtonView;
     ButtonView exitButtonView;
     public MenuScreen(MyGdxGame myGdxGame){
@@ -29,8 +30,9 @@ public class MenuScreen extends ScreenAdapter {
         titleView = new TextView(myGdxGame.largeWhiteFont, 180, 960, "Space Cleaner");
 
         startButtonView = new ButtonView(140, 646, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "start");
-        settingsButtonView = new ButtonView(140, 551, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "settings");
-        exitButtonView = new ButtonView(140, 456, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "exit");
+        miniGamesButtonView = new ButtonView(140, 551, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "mini games");
+        settingsButtonView = new ButtonView(140, 456, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "settings");
+        exitButtonView = new ButtonView(140, 361, 440, 70, myGdxGame.commonBlackFont, BUTTON_LONG_BG_IMG_PATH, "exit");
 
     }
     @Override
@@ -47,12 +49,16 @@ public class MenuScreen extends ScreenAdapter {
         exitButtonView.draw(myGdxGame.batch);
         settingsButtonView.draw(myGdxGame.batch);
         startButtonView.draw(myGdxGame.batch);
+        miniGamesButtonView.draw(myGdxGame.batch);
         myGdxGame.batch.end();
     }
     private void handleInput() {
         if (Gdx.input.justTouched()) {
             myGdxGame.touch = myGdxGame.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
+            if (miniGamesButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
+                myGdxGame.setScreen(myGdxGame.miniGamesSelectionScreen);
+            }
             if (startButtonView.isHit(myGdxGame.touch.x, myGdxGame.touch.y)) {
                 myGdxGame.setScreen(myGdxGame.weaponSelectionScreen);
             }

@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import javax.swing.plaf.PanelUI;
+
 public class GameSettings {
     public static final int SCREEN_WIDTH = 720;
     public static final int SCREEN_HEIGHT = 1280;
@@ -59,4 +61,7 @@ public class GameSettings {
     public static final int SHIP_LIVES = 3;
     public final static int LIVE_PADDING = 6;
 
+    public final static int MINUTES_TO_SURVIVAL_IN_PIRATES = 2;
+    public final static int MINUTES_TO_SURVIVAL_IN_PROTECTION = 2;
+    public final static int COUNT_OF_TRASH_TO_DESTRUCT_IN_TRASH_COLLECTOR = 20;
 }

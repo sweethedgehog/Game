@@ -44,11 +44,12 @@ public class ShipObject extends GameObject{
         shieldTexture = new Texture(SHIELD_IMG_PATH);
         this.weapon = weapon;
     }
-    public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world, boolean isStatic) {
+    public ShipObject(int x, int y, int width, int height, int weapon, String texturePath, World world, boolean isKinematic) {
         super(texturePath, x, y, width, height, SHIP_BIT, world);
         this.weapon = weapon;
-        if (isStatic)
-            body.setType(BodyDef.BodyType.StaticBody);
+        lives = SHIP_LIVES;
+        if (isKinematic)
+            body.setType(BodyDef.BodyType.KinematicBody);
     }
     private void putInFrame(){
         if((float) getY() > (SCREEN_HEIGHT / 2f - height / 2f)) {

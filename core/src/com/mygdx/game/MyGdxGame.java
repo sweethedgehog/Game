@@ -24,7 +24,11 @@ import com.mygdx.game.components.FontBuilder;
 import com.mygdx.game.managers.AudioManager;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.screens.MenuScreen;
+import com.mygdx.game.screens.MiniGamesSelectionScreen;
+import com.mygdx.game.screens.PiratesMiniGameScreen;
+import com.mygdx.game.screens.ProtectTheSurvivorsMiniGameScreen;
 import com.mygdx.game.screens.SettingsScreen;
+import com.mygdx.game.screens.TrashCollectionMiniGameScreen;
 import com.mygdx.game.screens.WeaponSelectionScreen;
 
 public class MyGdxGame extends Game {
@@ -34,6 +38,10 @@ public class MyGdxGame extends Game {
 	public MenuScreen menuScreen;
 	public SettingsScreen settingsScreen;
 	public WeaponSelectionScreen weaponSelectionScreen;
+	public MiniGamesSelectionScreen miniGamesSelectionScreen;
+	public PiratesMiniGameScreen piratesMiniGameScreen;
+	public TrashCollectionMiniGameScreen trashCollectionMiniGameScreen;
+	public ProtectTheSurvivorsMiniGameScreen protectTheSurvivorsMiniGameScreen;
 	public World world;
 	float accumulator = 0;
 	public Vector3 touch;
@@ -56,12 +64,15 @@ public class MyGdxGame extends Game {
 		camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 		gameScreen = new GameScreen(this);
 		weaponSelectionScreen = new WeaponSelectionScreen(this);
+		miniGamesSelectionScreen = new MiniGamesSelectionScreen(this);
 		menuScreen = new MenuScreen(this);
 		settingsScreen = new SettingsScreen(this);
+		piratesMiniGameScreen = new PiratesMiniGameScreen(this);
+		trashCollectionMiniGameScreen = new TrashCollectionMiniGameScreen(this);
+		protectTheSurvivorsMiniGameScreen = new ProtectTheSurvivorsMiniGameScreen(this);
 		audioManager = new AudioManager();
 
 		setScreen(menuScreen);
-
 	}
 
 	

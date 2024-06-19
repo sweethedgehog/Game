@@ -7,12 +7,14 @@ public class GameResources {
     public static final String BLACKOUT_MIDDLE_IMG_PATH = "textures/blackout_middle.png";
     public static final String BUTTON_SHORT_BG_IMG_PATH = "textures/button_background_short.png";
     public static final String BUTTON_LONG_BG_IMG_PATH = "textures/button_background_long.png";
+    public static final String BACKGROUND_SELECTION_LONG_BG_IMG_PATH = "textures/selection_background_long.png";
     public static final String PAUSE_IMG_PATH = "textures/pause_icon.png";
     public static final String LIVE_IMG_PATH = "textures/life.png";
     public static final String SHIELD_IMG_PATH = "textures/shield.png";
     public static final String SKULL_IMG_PATH = "textures/skull.png";
     public static final String BULLET_IMG_PATH = "textures/bullet.png";
     public static final String SHIP_IMG_PATH = "textures/ship.png";
+    public static final String ESCAPE_CAPSULE_IMG_PATH = "textures/escape_capsule.png";
     public static final String PIRATES_IMG_PATH = "textures/pirates_ship.png";
     public static final String TRASH_IMG_PATH = "textures/trash.png";
     public static final String TRASH_SHARP_IMG_PATH = "textures/trash_sharp.png";
